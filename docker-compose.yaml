@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  redis:
+    image: redislabs/redismod
+    ports:
+      - "6379:6379"
+    volumes:
+      - $PWD/data:/data
+    command: --dir /data --loadmodule /usr/lib/redis/modules/redistimeseries.so --loadmodule /usr/lib/redis/modules/rejson.so
+
+  app:
+    restart: always
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
