@@ -48,3 +48,21 @@ The 3 Timeseries in Redis support range filtering and aggregation 🚀
 
 - https://redis.io/commands/ts.range/
 - https://fastapi.tiangolo.com/tutorial/
+
+
+## Frontend
+
+First, in the project directory run `npm i` to make sure dependencies are installed 
+
+### API Generator
+An API Generator will take care of turning the endpoints in `backend/main.py` into JavaScript code.
+This will make life easier because instead of constructing complex URLs for an API call we can just call a function and pass the parameters.
+#### How to
+1. Make sure the server (back-end) is up and running: `make serve`
+2. Run `make client`
+This will generate the code for us inside `frontend/src/client`.
+Whenever there are changes to the endpoints in `backend/main.py`, we can simply call `make client` and the frontend will have up to date code for the API.
+
+### React.js
+Run React by running `make frontend` from the project directory.
+Saving changes to the React files will automatically trigger compilation so you can instantly see the results in your browser.
