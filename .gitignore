@@ -129,5 +129,4 @@ dmypy.json
 .pyre/
 
 # large dataset
-dataset.json
 data/*
