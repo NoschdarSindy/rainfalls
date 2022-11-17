@@ -1,6 +1,6 @@
 .PHONY: serve-local
 serve-local:
-	uvicorn main:app --reload  --app-dir backend/ --port 8080
+	python -m uvicorn main:app --reload  --app-dir backend/ --port 8080
 
 .PHONY: build
 build:
