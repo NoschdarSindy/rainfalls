@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "frontend": "cd frontend && npm run start",
-    "generate-client": "cd frontend && npm run generate-client",
+    "generate-client": "(cd backend && python -m api_generator); (cd frontend && npm run generate-client)",
     "postinstall": "cd frontend && npm install"
   }
 }
