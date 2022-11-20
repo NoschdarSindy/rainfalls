@@ -1,13 +1,12 @@
 import json
 import logging
 from typing import Union
+import os
 
-from constants import DATASET_PATH, PRE_O_AREA, PRE_O_LENGTH, PRE_O_SEV_INDEX
+from constants import DATASET_PATH, PRE_O_AREA, PRE_O_LENGTH, PRE_O_SEV_INDEX, REDIS_URL
 from fastapi import FastAPI
 from models import RedisTimeSeriesClient
 
-REDIS_URL = "redis://redis:6379"  # for docker
-# REDIS_URL = "redis://127.0.0.1:6379" # for local development
 
 log = logging.getLogger(__name__)
 app = FastAPI(title="Gummistiefel B")
