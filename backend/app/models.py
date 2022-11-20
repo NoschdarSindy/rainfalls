@@ -19,12 +19,22 @@ def datetime_to_posix_timestamp_milliseconds(dt):
 
 
 class WeatherEvent:
-    def __init__(self, event_id, area, length, severity_index, start_time, timeseries):
+    def __init__(
+        self,
+        event_id,
+        area,
+        length,
+        severity_index,
+        start_time,
+        start_time_ms,
+        timeseries,
+    ):
         self.event_id = event_id
         self.area = area
         self.length = length
         self.severity_index = severity_index
         self.start_time = start_time
+        self.start_time_ms = start_time_ms
         self.timeseries = timeseries
 
     @classmethod
@@ -35,6 +45,7 @@ class WeatherEvent:
             length=dict_["length"],
             severity_index=dict_["si"],
             start_time=datetime_to_posix_timestamp_milliseconds(dict_["start"]),
+            start_time_ms=dict_["start_time_ms"],
             timeseries=[
                 DetailWeatherEvent.from_dict(sub_event, ix)
                 for ix, sub_event in enumerate(dict_["timeseries"])
@@ -175,16 +186,16 @@ class RedisTimeSeriesClient:
 
         db_objects = set()  # Set of 3-D Tuples (redis_key, timestamp, value)
         for event in weather_events:
-            t0 = event.start_time
+            id_timestamp = event.start_time_ms  # unique timestamp we can use as ID
 
-            db_objects.add((PRE_O_AREA, t0, event.area))
-            db_objects.add((PRE_O_LENGTH, t0, event.length))
-            db_objects.add((PRE_O_SEV_INDEX, t0, event.severity_index))
+            db_objects.add((PRE_O_AREA, id_timestamp, event.area))
+            db_objects.add((PRE_O_LENGTH, id_timestamp, event.length))
+            db_objects.add((PRE_O_SEV_INDEX, id_timestamp, event.severity_index))
 
             # We add subevent timeseries as normal keys, otherwise we blow up the DB
             # (seriously, I tried it an ended up with > 2 Million Keys and 11GB)
             await self.add_item_as_json_document(
-                f"{event.event_id}",
+                id_timestamp,
                 json.dumps(event, default=lambda o: o.__dict__),
             )
 
