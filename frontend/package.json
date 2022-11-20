@@ -22,7 +22,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "generate-client": "openapi --input http://localhost:8080/openapi.json --output ./src/client --postfix Api"
+    "generate-client": "openapi --input src/client/openapi.json --output ./src/client --postfix Api"
   },
   "eslintConfig": {
     "extends": [

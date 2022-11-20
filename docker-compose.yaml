@@ -5,13 +5,26 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - $PWD/data:/data
-    command: --dir /data --loadmodule /usr/lib/redis/modules/redistimeseries.so --loadmodule /usr/lib/redis/modules/rejson.so
+      - $PWD/database:/database
+    command: --dir /database --loadmodule /usr/lib/redis/modules/redistimeseries.so --loadmodule /usr/lib/redis/modules/rejson.so
 
-  app:
+  backend:
     restart: always
-    build: .
+    build:
+      context: ./
+      dockerfile: backend/Dockerfile
     ports:
       - "8080:8080"
     depends_on:
       - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATASET_PATH=/backend/dataset.json
+
+  frontend:
+    restart: always
+    build: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_URL=backend://backend:8080
