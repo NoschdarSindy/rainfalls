@@ -3,7 +3,16 @@
   "version": "0.1.0",
   "scripts": {
     "frontend": "cd frontend && npm run start",
-    "generate-client": "(cd backend && python -m api_generator); (cd frontend && npm run generate-client)",
-    "postinstall": "cd frontend && npm install"
+    "generate-client": "(cd backend/app && python -m api_generator); (cd frontend && npm run generate-client)",
+    "postinstall": "cd frontend && npm install",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.2",
+    "lint-staged": "^13.0.4",
+    "prettier": "^2.8.0"
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write frontend"
   }
 }

@@ -1,6 +1,6 @@
 .PHONY: client
 client: # should be called before building frontend
-	npm run generate-client
+	npm i & npm run generate-client
 
 .PHONY: build
 build:
@@ -14,7 +14,7 @@ run:
 .PHONY: run-local
 run-local:
 	docker-compose up -d redis 
-	make run-backend-local&  make run-frontend-local
+	make run-backend-local & make run-frontend-local
 
 .PHONY: run-backend-local
 run-backend-local:
@@ -22,4 +22,4 @@ run-backend-local:
 
 .PHONY: run-frontend-local
 run-frontend-local:
-	make client &	npm run frontend
+	make client & npm run frontend

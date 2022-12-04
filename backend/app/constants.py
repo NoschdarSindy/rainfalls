@@ -1,6 +1,6 @@
 import os
 
-REDIS_URL = REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
+REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
 DATASET_PATH = os.environ.get("DATASET_PATH", "../dataset.json")
 
 PRE_OVERALL = "overall"

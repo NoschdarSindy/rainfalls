@@ -1,0 +1,63 @@
+:root {
+  --mosaic-color: #abb3bf;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Header */
+header * {
+  user-select: none;
+}
+header h5 {
+  font-family: "Century Gothic", CenturyGothic, AppleGothic, sans-serif;
+}
+
+/* Chips */
+.chip,
+.chip > [class$="label"] {
+  margin-top: 0.1rem !important;
+}
+
+/* react-select */
+div[class$="control"] {
+  min-height: unset !important;
+}
+div[class$="control"] div[id$="-placeholder"] {
+  padding-top: 5% !important;
+  padding-bottom: 5% !important;
+}
+div[id$="-listbox"] {
+  overflow: visible;
+  z-index: 99999999 !important;
+}
+
+/* react-mosaic */
+.mosaic-window-title {
+  padding-left: 8% !important;
+  overflow: visible !important;
+}
+.mosaic-window-body {
+  padding: 1%;
+}
+.close-button-container {
+  margin: auto 0.2em auto auto;
+  cursor: pointer;
+  color: var(--mosaic-color);
+  position: absolute;
+  right: 0;
+}
+.close-button:hover {
+  color: lightcoral;
+}
