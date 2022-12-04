@@ -131,3 +131,7 @@ dmypy.json
 # database
 data/*
 database/*
+
+# npm
+package-lock.json
+frontend/package-lock.json

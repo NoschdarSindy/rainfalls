@@ -1,7 +1,6 @@
 import json
 import logging
 from typing import Union
-import os
 
 from constants import DATASET_PATH, PRE_O_AREA, PRE_O_LENGTH, PRE_O_SEV_INDEX, REDIS_URL
 from fastapi import FastAPI
