@@ -3,7 +3,8 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-import aioredis
+from redis.commands.json.path import Path as jsonPath
+from redis import asyncio as aioredis
 from aioredis.exceptions import ResponseError
 from constants import *
 
@@ -12,7 +13,11 @@ log = logging.getLogger(__name__)
 
 def datetime_to_posix_timestamp_milliseconds(dt):
     if isinstance(dt, str):
-        dt = datetime.fromisoformat(dt)
+        try:
+            dt = datetime.fromisoformat(dt)
+        except ValueError as e:
+            log.error(e)
+            return
 
     # datetime.timestamp returns seconds since epoch as float, with ms after period
     return int(dt.timestamp() * 1000)
@@ -105,7 +110,8 @@ class DetailWeatherEvent:
 
 class RedisTimeSeriesClient:
     def __init__(self, redis_url=REDIS_URL):
-        self.redis = aioredis.from_url(redis_url, decode_responses=True)
+        self.aioredis = aioredis.from_url(redis_url, decode_responses=True)
+
 
     async def create_timeseries(self, key):
         """
@@ -124,7 +130,7 @@ class RedisTimeSeriesClient:
         """
 
         try:
-            await self.redis.execute_command(
+            await self.aioredis.execute_command(
                 "TS.CREATE",
                 key,
                 "DUPLICATE_POLICY",
@@ -135,6 +141,13 @@ class RedisTimeSeriesClient:
             # In this case nothing happens, since we use DUPLICATE_POLICY: first
             log.info(f"Could not create timeseries {key}, error: {e}")
 
+    async def create_index(self, name, *fields):
+        """
+        Creates a new index, searchable by given top-level numeric fields.
+        """
+        fields_string = " ".join(f"$.{field} AS {field} NUMERIC" for field in fields)
+        return await self.aioredis.execute_command(f"FT.CREATE {name} ON JSON SCHEMA {fields_string}")
+
     async def add_items_to_timeseries(self, *items):
         """
         Adds a new item to an existing redis timeseries.
@@ -142,35 +155,78 @@ class RedisTimeSeriesClient:
         Each item is made up of a timestamp and a value.
         One redis timeseries holds many such key value pairs.
         """
-        return await self.redis.execute_command("TS.MADD", *items)
+        return await self.aioredis.execute_command("TS.MADD", *items)
 
     async def add_item_normal_key_value_pair(self, key, value):
         # Obsolote, we now load subevents (aka timeseries) as JSON documents in redis
-        return await self.redis.execute_command("SADD", key, value)
+        return await self.aioredis.execute_command("SADD", key, value)
 
     async def add_item_as_json_document(self, key, value):
-        return await self.redis.execute_command("JSON.SET", key, "$", value)
+        return await self.aioredis.execute_command("JSON.SET", key, "$", value)
 
     async def key_exists(self, key):
-        return await self.redis.execute_command("EXISTS", key)
+        return await self.aioredis.execute_command("EXISTS", key)
 
     async def get_key(self, key):
-        return await self.redis.get(key)
+        return await self.aioredis.get(key)
 
     async def get_timeseries_key(self, key):
-        return await self.redis.execute_command("TS.GET", key)
+        return await self.aioredis.execute_command("TS.GET", key)
 
     async def get_key_json(self, key):
-        return await self.redis.execute_command("JSON.GET", key)
+        return await self.aioredis.execute_command("JSON.GET", key)
 
     async def get_overall_range(self, key, start, end):
-        return await self.redis.execute_command("TS.RANGE", key, start, end)
+        return await self.aioredis.execute_command("TS.RANGE", key, start, end)
+
+    async def query_events(self, filters, limit):
+        if filters:
+            predicates = []
+            for (field, operator, value) in filters:
+                if field not in (AREA, LENGTH, SEV_INDEX, START_TIME):
+                    log.error(f'Attribute must be one of {AREA, LENGTH, SEV_INDEX, START_TIME}, got {field} instead')
+                    return
+
+                if field == START_TIME:
+                    value = str(datetime_to_posix_timestamp_milliseconds(value))
+                    if value == 'None':
+                        log.error(f"{START_TIME} has bad format")
+                        return
+
+                prefix = suffix = ''
+                if operator.startswith("lt"):
+                    min_value = "-inf"
+                    max_value = ('' if operator.endswith('e') else '(') + value  # '(' makes the range exclusive
+                elif operator.startswith("gt"):
+                    min_value = ('' if operator.endswith('e') else '(') + value
+                    max_value = "inf"
+                elif operator.endswith('eq'):
+                    if operator.startswith('n'):
+                        prefix = '(-'
+                        suffix = ')'
+                    min_value = max_value = value
+                else:
+                    log.error(f'Operator must be one of (lt, lte, gt, gte, eq, neq), got "{operator}" instead')
+                    return
+
+                predicates.append(f"{prefix}@{field}:[{min_value} {max_value}]{suffix}")
+        else:  # no filters applied
+            predicates = ["*"]
+
+        ids = await self.aioredis.execute_command("FT.SEARCH", "events", f'\'{" ".join(predicates)}\'', "NOCONTENT", "LIMIT", "0", limit)
+        count = ids.pop(0)
+
+        if limit == 0 or count == 0:
+            return count, []
+
+        data = await self.aioredis.json().mget(ids, jsonPath.root_path())
+        return len(data), data
 
     async def initialize_database(self, path_to_dataset=DATASET_PATH, force_wipe=True):
         weather_events = load_dataset(path_to_dataset)
 
         if force_wipe:
-            await self.redis.execute_command("FLUSHDB")
+            await self.aioredis.execute_command("FLUSHDB")
         else:
             # check if DB is already initialized, do nothing if it is
             if (
@@ -183,6 +239,8 @@ class RedisTimeSeriesClient:
         await self.create_timeseries(PRE_O_AREA)
         await self.create_timeseries(PRE_O_LENGTH)
         await self.create_timeseries(PRE_O_SEV_INDEX)
+
+        await self.create_index("events", AREA, LENGTH, SEV_INDEX, START_TIME)
 
         db_objects = set()  # Set of 3-D Tuples (redis_key, timestamp, value)
         for event in weather_events:

@@ -1,16 +1,18 @@
 import json
 import logging
+import re
+import urllib
 from typing import Union
 
 from constants import DATASET_PATH, PRE_O_AREA, PRE_O_LENGTH, PRE_O_SEV_INDEX, REDIS_URL
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from models import RedisTimeSeriesClient
 
 
 log = logging.getLogger(__name__)
 app = FastAPI(title="Gummistiefel B")
 redis_ts = RedisTimeSeriesClient(redis_url=REDIS_URL)
-
 
 @app.on_event("startup")
 async def startup_event():
@@ -56,3 +58,19 @@ async def severity(
 ):
     data = await redis_ts.get_overall_range(key=PRE_O_SEV_INDEX, start=start, end=end)
     return data
+
+
+@app.get("/query")
+async def query(request: Request, limit: Union[int, None] = 999999):
+    query_params = urllib.parse.unquote(str(request.query_params)).split('&')
+    filters = [re.split(r'__|=', qp) for qp in query_params if not qp.startswith("limit")]
+    if invalid_param := next((f for f in filters if len(f) != 3), False):
+        return JSONResponse({'error' : f'Cannot interpret {invalid_param} as a filter. Correct format: field__operator=value'}, status_code=400)
+
+    try:
+        count, data = await redis_ts.query_events(filters, limit=limit)
+    except TypeError:
+        return JSONResponse({'error' : 'Invalid query. Check the console for details.'}, status_code=400)
+
+    headers = {'x-count': str(count)}
+    return JSONResponse(content=data, headers=headers)

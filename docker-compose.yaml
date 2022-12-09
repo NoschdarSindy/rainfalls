@@ -6,7 +6,7 @@ services:
       - "6379:6379"
     volumes:
       - $PWD/database:/database
-    command: --dir /database --loadmodule /usr/lib/redis/modules/redistimeseries.so --loadmodule /usr/lib/redis/modules/rejson.so
+    command: --dir /database --loadmodule /usr/lib/redis/modules/redistimeseries.so --loadmodule /usr/lib/redis/modules/rejson.so --loadmodule /usr/lib/redis/modules/redisearch.so
 
   backend:
     restart: always

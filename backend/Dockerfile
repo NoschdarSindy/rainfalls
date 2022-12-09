@@ -11,6 +11,7 @@ ENV PATH="$POETRY_HOME/bin:$PATH"
 ENV PATH="/backend/.venv/bin:$PATH"
 
 RUN pip install poetry
+RUN apt-get update && apt-get -y install gcc
 
 COPY ./dataset.json /backend/dataset.json
 COPY ./backend /backend
