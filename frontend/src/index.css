@@ -44,6 +44,10 @@ div[id$="-listbox"] {
 }
 
 /* react-mosaic */
+.mosaic-window {
+  height: 100%;
+  width: 100%;
+}
 .mosaic-window-title {
   padding-left: 8% !important;
   overflow: visible !important;
@@ -60,4 +64,12 @@ div[id$="-listbox"] {
 }
 .close-button:hover {
   color: lightcoral;
+}
+
+.open-button {
+  display: none;
+}
+
+#mosaic-frame {
+  height: 100%;
 }

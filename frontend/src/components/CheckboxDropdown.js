@@ -1,38 +1,72 @@
 import React, { Component } from "react";
 import ReactSelect from "react-select";
 import { components } from "react-select";
+import WindowManager from "./WindowManager";
 
-const Option = (props) => {
-  return (
-    <div>
-      <components.Option {...props}>
-        <input type="checkbox" checked={true} onChange={() => null} />{" "}
-        <label>{props.label}</label>
-      </components.Option>
-    </div>
-  );
-};
 
-export class Example extends Component {
+export class CheckboxDropdown extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      optionSelected: null,
+      selected: this.props.items,
+      nonSelected: []
     };
   }
 
-  handleChange = (selected) => {
+  onChange = (selected) => {
+    const nonSelected = []
+
+    this.props.items.forEach((item) => {
+      item.isSelected = selected.includes(item);
+      if (!item.isSelected) {
+        nonSelected.push(item)
+      }
+    })
+
     this.setState({
-      optionSelected: selected,
+      selected: selected,
+      nonSelected: nonSelected
     });
+
+    WindowManager.setState(selected, nonSelected);
   };
+
+  onFocus = () => {
+    const selected = []
+    const nonSelected = []
+    
+    this.props.items.forEach((item) => {
+      item.isSelected = WindowManager.isVisible(item.value)
+      if (item.isSelected) {
+        selected.push(item);
+      }
+      else {
+        nonSelected.push(item);
+      }
+    })
+
+    this.setState({
+      selected: selected,
+      nonSelected: nonSelected
+    });
+  }
+
+  close = () => {
+    const element = document.getElementById("react-select-2-input");
+
+    if (element) {
+      element.blur();
+    }
+  }
 
   render() {
     return (
       <span className="d-inline-block">
         <ReactSelect
+          id={"view-select-dropdown"}
           options={this.props.items}
-          isMulti
+          value={this.state.selected}
+          isMulti={true}
           closeMenuOnSelect={true}
           hideSelectedOptions={false}
           controlShouldRenderValue={false}
@@ -40,9 +74,25 @@ export class Example extends Component {
           isSearchable={false}
           placeholder={"View"}
           components={{
-            Option,
+            Option: (props) => {
+              return (
+                <div>
+                  <components.Option {...props}>
+                    <input 
+                      type="checkbox" 
+                      id={`${props.value}-check`} 
+                      checked={props.isSelected} 
+                      onChange={() => null} 
+                    />{" "}
+                    <label>{props.label}</label>
+                  </components.Option>
+                </div>
+              );
+            }
           }}
-          onChange={this.handleChange}
+          onChange={this.onChange}
+          onFocus={this.onFocus}
+          onMenuClose={this.close}
           allowSelectAll={true}
           styles={{
             menu: (base) => ({

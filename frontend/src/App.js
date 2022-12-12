@@ -1,64 +1,66 @@
 import { Mosaic, MosaicWindow } from "react-mosaic-component";
 import "react-mosaic-component/react-mosaic-component.css";
-import React from "react";
-import { MosaicContext } from "react-mosaic-component";
 import { faWindowClose } from "@fortawesome/free-solid-svg-icons";
-import HelloWorld from "./components/HelloWorld";
 import Header from "./components/Header";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ComparisonView from "./components/ComparisonView";
 import IntervalView from "./components/IntervalView";
+import WindowManager from "./components/WindowManager";
+
 
 const VIEWS = {
-  comparisonView: <ComparisonView title="Comparison" />,
-  leftIntervalView: <IntervalView title="Interval A" />,
-  rightIntervalView: <IntervalView title="Interval B" />,
+  comparison: <ComparisonView title="Comparison" />,
+  intervalA: <IntervalView title="Interval A" />,
+  intervalB: <IntervalView title="Interval B" />
 };
 
 const App = () => (
   <>
     <Header />
-    <Mosaic
-      renderTile={(id, path) => (
-        <MosaicWindow
-          path={path}
-          title={VIEWS[id].props.title}
-          draggable={false}
-          renderToolbar={(props, draggable) => {
-            return (
-              <div className="mosaic-window-toolbar user-select-none">
-                <span className="mosaic-window-title">
-                  {VIEWS[id].props.title}
-                </span>
-                <div className="close-button-container">
-                  <MosaicContext.Consumer>
-                    {({ mosaicActions }) => (
+    <div id="mosaic-frame">
+      <Mosaic
+        renderTile={(id, path) => (
+          <div id={`${id}-mosaic`}>
+            <MosaicWindow
+              path={path}
+              title={VIEWS[id].props.title}
+              draggable={false}
+              renderToolbar={(props) => {
+                return (
+                  <div className="mosaic-window-toolbar user-select-none">
+                    <span className="mosaic-window-title">
+                      {props.title}
+                    </span>
+                    <div className="close-button-container">
                       <FontAwesomeIcon
+                        id={`${id}-close-icon`}
                         icon={faWindowClose}
-                        onClick={() => mosaicActions.remove(path)}
+                        onClick={() => {
+                          WindowManager.close(id);
+                        }}
                         className={"close-button fa"}
                       />
-                    )}
-                  </MosaicContext.Consumer>
-                </div>
-              </div>
-            );
-          }}
-        >
-          {VIEWS[id]}
-        </MosaicWindow>
-      )}
-      initialValue={{
-        direction: "row",
-        splitPercentage: 25,
-        first: "comparisonView",
-        second: {
+                    </div>
+                  </div>
+                );
+              }}
+            >
+              {VIEWS[id]}
+            </MosaicWindow>
+          </div>
+        )}
+        initialValue={{
           direction: "row",
-          first: "leftIntervalView",
-          second: "rightIntervalView",
-        },
-      }}
-    />
+          splitPercentage: 25,
+          first: "comparison",
+          second: {
+            direction: "row",
+            first: "intervalA",
+            second: "intervalB",
+          },
+        }}
+      />
+    </div>
   </>
 );
 

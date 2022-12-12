@@ -1,7 +1,7 @@
 import { DefaultApi as Api } from "./../client/services/DefaultApi";
 import Async from "react-async";
 import React, { useState } from "react";
-import { Example as ViewDropdown } from "./CheckboxDropdown";
+import { CheckboxDropdown } from "./CheckboxDropdown";
 import { Button, Col, Row } from "react-bootstrap";
 import { Chip } from "@mui/material";
 import HelpModal from "./HelpModal";
@@ -23,7 +23,7 @@ export default function Header() {
         </Col>
         <Col className="text-end">
           <div className="d-inline text-start control btn-sm p-0 h-75">
-            <ViewDropdown items={state.items} />
+            <CheckboxDropdown items={state.items} />
           </div>
           &nbsp;
           <Button variant="secondary btn-sm align-top" className="p-1">
