@@ -133,6 +133,4 @@ data/*
 database/*
 
 # npm
-package-lock.json
-frontend/package-lock.json
 /node_modules
