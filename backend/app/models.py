@@ -3,21 +3,16 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from redis.commands.json.path import Path as jsonPath
-from redis import asyncio as aioredis
-from aioredis.exceptions import ResponseError
 from constants import *
+from redis import asyncio as aioredis
+from redis.commands.json.path import Path as jsonPath
 
 log = logging.getLogger(__name__)
 
 
 def datetime_to_posix_timestamp_milliseconds(dt):
     if isinstance(dt, str):
-        try:
-            dt = datetime.fromisoformat(dt)
-        except ValueError as e:
-            log.error(e)
-            return
+        dt = datetime.fromisoformat(dt)
 
     # datetime.timestamp returns seconds since epoch as float, with ms after period
     return int(dt.timestamp() * 1000)
@@ -108,58 +103,21 @@ class DetailWeatherEvent:
         )
 
 
-class RedisTimeSeriesClient:
+class RedisJSONClient:
     def __init__(self, redis_url=REDIS_URL):
         self.aioredis = aioredis.from_url(redis_url, decode_responses=True)
 
-
-    async def create_timeseries(self, key):
-        """
-        Create a timeseries using the specified redis key.
-
-        A timeseries is a collection of (timestamp, value) tuples. We will create
-        one timeseries for each of the top level features, i.e:
-        ['area', 'length', 'severity_index'], where the timestamp represents the
-        start time of the event and the value will hold the concrete top level feature
-        value for the event.
-
-        We'll use the duplicate policy known as "first," which ignores
-        duplicate pairs of timestamp and values if we add them.
-
-        NOTE there is a performance cost to writes using this policy.
-        """
-
-        try:
-            await self.aioredis.execute_command(
-                "TS.CREATE",
-                key,
-                "DUPLICATE_POLICY",
-                "first",
-            )
-        except ResponseError as e:
-            # Time series probably already exists
-            # In this case nothing happens, since we use DUPLICATE_POLICY: first
-            log.info(f"Could not create timeseries {key}, error: {e}")
-
-    async def create_index(self, name, *fields):
+    async def create_fulltext_search_index(self, name, *fields):
         """
         Creates a new index, searchable by given top-level numeric fields.
         """
         fields_string = " ".join(f"$.{field} AS {field} NUMERIC" for field in fields)
-        return await self.aioredis.execute_command(f"FT.CREATE {name} ON JSON SCHEMA {fields_string}")
+        return await self.aioredis.execute_command(
+            f"FT.CREATE {name} ON JSON SCHEMA {fields_string}"
+        )
 
-    async def add_items_to_timeseries(self, *items):
-        """
-        Adds a new item to an existing redis timeseries.
-
-        Each item is made up of a timestamp and a value.
-        One redis timeseries holds many such key value pairs.
-        """
-        return await self.aioredis.execute_command("TS.MADD", *items)
-
-    async def add_item_normal_key_value_pair(self, key, value):
-        # Obsolote, we now load subevents (aka timeseries) as JSON documents in redis
-        return await self.aioredis.execute_command("SADD", key, value)
+    async def list_fulltext_search_indices(self):
+        return await self.aioredis.execute_command("FT._LIST")
 
     async def add_item_as_json_document(self, key, value):
         return await self.aioredis.execute_command("JSON.SET", key, "$", value)
@@ -167,60 +125,107 @@ class RedisTimeSeriesClient:
     async def key_exists(self, key):
         return await self.aioredis.execute_command("EXISTS", key)
 
-    async def get_key(self, key):
-        return await self.aioredis.get(key)
-
-    async def get_timeseries_key(self, key):
-        return await self.aioredis.execute_command("TS.GET", key)
-
     async def get_key_json(self, key):
         return await self.aioredis.execute_command("JSON.GET", key)
 
-    async def get_overall_range(self, key, start, end):
-        return await self.aioredis.execute_command("TS.RANGE", key, start, end)
+    async def mget_keys_json(self, keys):
+        return await self.aioredis.json().mget(keys=keys, path=jsonPath.root_path())
 
-    async def query_events(self, filters, limit):
-        if filters:
-            predicates = []
-            for (field, operator, value) in filters:
-                if field not in (AREA, LENGTH, SEV_INDEX, START_TIME):
-                    log.error(f'Attribute must be one of {AREA, LENGTH, SEV_INDEX, START_TIME}, got {field} instead')
-                    return
+    async def fulltext_search(self, index, query, limit):
+        """
+        Perform a fulltext search and return all matching documents.
 
-                if field == START_TIME:
-                    value = str(datetime_to_posix_timestamp_milliseconds(value))
-                    if value == 'None':
-                        log.error(f"{START_TIME} has bad format")
-                        return
+        Results are returned in the following format:
 
-                prefix = suffix = ''
-                if operator.startswith("lt"):
-                    min_value = "-inf"
-                    max_value = ('' if operator.endswith('e') else '(') + value  # '(' makes the range exclusive
-                elif operator.startswith("gt"):
-                    min_value = ('' if operator.endswith('e') else '(') + value
-                    max_value = "inf"
-                elif operator.endswith('eq'):
-                    if operator.startswith('n'):
-                        prefix = '(-'
-                        suffix = ')'
-                    min_value = max_value = value
-                else:
-                    log.error(f'Operator must be one of (lt, lte, gt, gte, eq, neq), got "{operator}" instead')
-                    return
+        [TOTAL_COUNT, JSON_DOC_ID, [JSON_PATH, *DOCUMENT_ATTRIBUTES], JSON_DOC_ID, [JSON_PATH, *DOCUMENT_ATTRIBUTES]...]
 
-                predicates.append(f"{prefix}@{field}:[{min_value} {max_value}]{suffix}")
-        else:  # no filters applied
-            predicates = ["*"]
+        """
 
-        ids = await self.aioredis.execute_command("FT.SEARCH", "events", f'\'{" ".join(predicates)}\'', "NOCONTENT", "LIMIT", "0", limit)
-        count = ids.pop(0)
+        return await self.aioredis.execute_command(
+            "FT.SEARCH",
+            index,
+            query,
+            "LIMIT",
+            "0",
+            limit,
+        )
 
-        if limit == 0 or count == 0:
-            return count, []
+    async def query_events(
+        self,
+        filters,
+        limit,
+        fields=(
+            "event_id",
+            "area",
+            "length",
+            "severity_index",
+            "start_time",
+        ),
+    ):
+        self._check_query_filters(filters)  # raises ValueError on invalid filters
 
-        data = await self.aioredis.json().mget(ids, jsonPath.root_path())
-        return len(data), data
+        query = self._make_query_from_filters(filters=filters) if filters else "*"
+        data = await self.fulltext_search(index="events", query=query, limit=limit)
+
+        count = data.pop(0)
+
+        # we are only interested in the DOCUMENT_ATTRIBUTES,
+        # see fulltext_search() function docs for more info
+        data = [
+            {key: value for (key, value) in json.loads(arr[1]).items() if key in fields}
+            for arr in data[1::2]
+        ]
+        return count, data
+
+    @staticmethod
+    def _check_query_filters(filters):
+        valid_fields = (AREA, LENGTH, SEV_INDEX, START_TIME)
+        valid_operators = ("lt", "lte", "gt", "gte", "eq", "neq")
+
+        if not all([len(filter_) == 3 for filter_ in filters]):
+            raise ValueError(
+                "Invalid query filters provided. "
+                "Make sure your filters adhere to the following scheme: 'area__gte=1'"
+            )
+
+        for (field, operator, _) in filters:
+            if field not in valid_fields:
+                raise ValueError(
+                    f"Attribute must be one of {valid_fields}, got {field} instead"
+                )
+
+            if operator not in valid_operators:
+                raise ValueError(
+                    f'Operator must be one of {valid_operators}, got "{operator}" instead'
+                )
+
+    @staticmethod
+    def _make_query_from_filters(filters):
+        predicates = []
+
+        for (field, operator, value) in filters:
+
+            if field == START_TIME:
+                value = str(datetime_to_posix_timestamp_milliseconds(value))
+
+            # Numeric filters are inclusive
+            # Exclusive min or max are expressed with ( prepended to the number
+            # See https://redis.io/docs/stack/search/reference/query_syntax/
+            # fmt: off
+            predicate_mapping = { 
+                "neq": f"-(@{field}:[{value}  {value}])",
+                "eq":  f"  @{field}:[{value}  {value}]",
+                "lt":  f"  @{field}:[-inf    ({value}]",
+                "lte": f"  @{field}:[-inf     {value}]",
+                "gt":  f"  @{field}:[({value} inf]",
+                "gte": f"  @{field}:[({value} inf]",
+            }
+            # fmt: on
+
+            predicates.append(predicate_mapping[operator])
+
+        predicates_string = " ".join(predicates)
+        return f"'{predicates_string}'"
 
     async def initialize_database(self, path_to_dataset=DATASET_PATH, force_wipe=True):
         weather_events = load_dataset(path_to_dataset)
@@ -229,44 +234,19 @@ class RedisTimeSeriesClient:
             await self.aioredis.execute_command("FLUSHDB")
         else:
             # check if DB is already initialized, do nothing if it is
-            if (
-                await self.key_exists(PRE_O_AREA)
-                and await self.key_exists(PRE_O_LENGTH)
-                and await self.key_exists(PRE_O_SEV_INDEX)
-            ):
+            ft_indices = await self.list_fulltext_search_indices()
+            if bool(ft_indices):
                 return
 
-        await self.create_timeseries(PRE_O_AREA)
-        await self.create_timeseries(PRE_O_LENGTH)
-        await self.create_timeseries(PRE_O_SEV_INDEX)
+        await self.create_fulltext_search_index(
+            "events", AREA, LENGTH, SEV_INDEX, START_TIME
+        )
 
-        await self.create_index("events", AREA, LENGTH, SEV_INDEX, START_TIME)
-
-        db_objects = set()  # Set of 3-D Tuples (redis_key, timestamp, value)
         for event in weather_events:
-            id_timestamp = event.start_time_ms  # unique timestamp we can use as ID
-
-            db_objects.add((PRE_O_AREA, id_timestamp, event.area))
-            db_objects.add((PRE_O_LENGTH, id_timestamp, event.length))
-            db_objects.add((PRE_O_SEV_INDEX, id_timestamp, event.severity_index))
-
-            # We add subevent timeseries as normal keys, otherwise we blow up the DB
-            # (seriously, I tried it an ended up with > 2 Million Keys and 11GB)
             await self.add_item_as_json_document(
-                id_timestamp,
+                event.event_id,
                 json.dumps(event, default=lambda o: o.__dict__),
             )
-
-        # Add timeseries data to redis in chunks of 100
-        db_objects = list(db_objects)
-        len_ = len(db_objects)
-        chunk_size = 100
-
-        for ix in range(0, len_, chunk_size):
-            chunk = db_objects[ix : min(ix + chunk_size, len_)]
-            chunk_flat = [item for tuple_ in chunk for item in tuple_]
-
-            await self.add_items_to_timeseries(*chunk_flat)
 
 
 def load_dataset(path_to_dataset):
