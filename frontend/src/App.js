@@ -1,8 +1,6 @@
 import { Mosaic, MosaicWindow } from "react-mosaic-component";
 import "react-mosaic-component/react-mosaic-component.css";
-import { faWindowClose } from "@fortawesome/free-solid-svg-icons";
 import Header from "./components/Header";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ComparisonView from "./components/ComparisonView";
 import IntervalView from "./components/IntervalView";
 import WindowManager from "./components/WindowManager";
@@ -28,17 +26,19 @@ const App = () => (
               renderToolbar={(props) => {
                 return (
                   <div className="mosaic-window-toolbar user-select-none">
-                    <span className="mosaic-window-title">
+                    <div className="mosaic-window-toolbar-element mosaic-window-title">
                       {props.title}
-                    </span>
-                    <div className="close-button-container">
-                      <FontAwesomeIcon
-                        id={`${id}-close-icon`}
-                        icon={faWindowClose}
-                        onClick={() => {
-                          WindowManager.close(id);
-                        }}
-                        className={"close-button fa"}
+                    </div>
+                    <div className="mosaic-window-toolbar-element mosaic-controls-container">
+                      <button 
+                        title={"Maximize Window"}
+                        className="mosaic-default-control expand-button"
+                        onClick={() => {WindowManager.maximize(id)}}
+                      />
+                      <button 
+                        title={"Close Window"}
+                        className="mosaic-default-control close-button"
+                        onClick={() => {WindowManager.close(id)}}
                       />
                     </div>
                   </div>

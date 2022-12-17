@@ -61,13 +61,14 @@ export class CheckboxDropdown extends Component {
 
   render() {
     return (
-      <span className="d-inline-block">
+      <span className="d-inline-block header-toolbar">
         <ReactSelect
           id={"view-select-dropdown"}
+          className={"header-toolbar"}
           options={this.props.items}
           value={this.state.selected}
           isMulti={true}
-          closeMenuOnSelect={true}
+          closeMenuOnSelect={false}
           hideSelectedOptions={false}
           controlShouldRenderValue={false}
           isClearable={false}

@@ -14,18 +14,18 @@ const INSETS = {
       "0% 0% 0% 50%"
   ],
   comparisonIntA: [
-      "0% 75% 0% 0%",
-      "0% 0% 0% 25%",
-      "0% 0% 0% 25%",
+      "0% 50% 0% 0%",
+      "0% 0% 0% 50%",
+      "0% 0% 0% 50%",
       "0% 0% 0% 100%",
       "0% 0% 0% 100%"
   ],
   comparisonIntB: [
-      "0% 75% 0% 0%",
-      "0% 0% 0% 25%",
-      "0% 75% 0% 25%",
-      "0% 0% 0% 25%",
-      "0% 0% 0% 25%"
+      "0% 50% 0% 0%",
+      "0% 0% 0% 50%",
+      "0% 50% 0% 50%",
+      "0% 0% 0% 50%",
+      "0% 0% 0% 50%"
   ],
   comparison: [
       "0%",
@@ -59,7 +59,12 @@ const INSETS = {
 
 export default class WindowManager {
   static isVisible(id) {
-    let parentStyle = document.getElementById(`${id}-mosaic`).parentElement.style;
+    let element = document.getElementById(`${id}-mosaic`)
+    if (!element) {
+      return false;
+    }
+
+    let parentStyle = element.parentElement.style;
     let inset = parseInt(parentStyle.inset);
     let right = parseInt(parentStyle.right);
     let left =  parseInt(parentStyle.left);
@@ -68,13 +73,42 @@ export default class WindowManager {
   }
 
   static setInset(id) {
-    let element = document.getElementById("mosaic-frame").firstChild.firstChild.firstChild;
+    const root = document.getElementById("mosaic-frame")
+    if (!root) {
+      return;
+    }
+
+    let element = root.firstChild.firstChild.firstChild;
+    if (element.nodeName === "#text") {
+      element = element.parentNode.nextSibling.firstChild
+    }
+
     let i = 0;
     do {
       element.style.inset = INSETS[id][i];
       i += 1;
     }
     while (element = element.nextSibling);
+
+    const message = document.getElementById('noWindowPresentMessage');
+
+    if (id === "none") {
+      if (!message) {
+        let frame = root.firstChild;
+        let child = frame.firstChild;
+        let node = document.createElement('p');
+        node.id = 'noWindowPresentMessage'
+        node.innerHTML = "No Window present - Please use the view dropdown to select the wanted windows."
+        node.style.padding = "5px";
+        frame.insertBefore(node, child);
+      }
+      else {
+        message.style.display = "inline-block"
+      }
+    }
+    else if (id !== "none" && message) {
+      message.style.display = "none"
+    }
   }
 
   static setState(selected) {
@@ -97,6 +131,10 @@ export default class WindowManager {
     }
 
     return WindowManager.setInset("none");
+  }
+
+  static maximize(id) {
+    return WindowManager.setInset(id);
   }
 
   static close(id) {
@@ -138,7 +176,7 @@ export default class WindowManager {
         return
       }
 
-      if (id == "comparison") {
+      if (id === "comparison") {
         return WindowManager.setInset("none");
       }
       return
