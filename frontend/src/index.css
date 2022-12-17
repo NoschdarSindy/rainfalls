@@ -55,21 +55,49 @@ div[id$="-listbox"] {
 .mosaic-window-body {
   padding: 1%;
 }
-.close-button-container {
+.mosaic-controls-container {
   margin: auto 0.2em auto auto;
   cursor: pointer;
   color: var(--mosaic-color);
-  position: absolute;
-  right: 0;
 }
-.close-button:hover {
-  color: lightcoral;
+.mosaic-window-toolbar {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between !important;
+  align-items: stretch;
 }
-
-.open-button {
-  display: none;
+.mosaic-window-toolbar-element {
+  display: inline-block;
+  width: fit-content;
+  padding: 5px !important;
 }
-
+.mosaic-default-control {
+  margin: 2px;
+  width: 20px;
+  height: 20px;
+  bottom: 0 !important;
+  color: white;
+  background-color: lightgrey;
+  border: 1px solid rgba(0, 0, 0, 0.175);
+  border-radius: 0.25rem;
+}
+.mosaic-default-control:hover{
+  color: gray;
+}
+.mosaic-default-control::before {
+  font-family: FontAwesome;
+  font-weight: bold;
+  position: relative;
+  bottom: 4.5px;
+  right: 1.5px;
+}
+.close-button::before {
+  content: "\00d7";
+}
+.expand-button::before {
+  content: "\2922";
+}
 #mosaic-frame {
   height: 100%;
 }
