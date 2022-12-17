@@ -21,13 +21,14 @@ export class DefaultApi {
 
     /**
      * Detail
-     * @param id
      * @returns any Successful Response
      * @throws ApiError
      */
-    public static detailDetailIdGet(
+    public static detailDetailIdGet({
+        id,
+    }: {
         id: number,
-    ): CancelablePromise<any> {
+    }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/detail/{id}',
@@ -41,70 +42,37 @@ export class DefaultApi {
     }
 
     /**
-     * Area
-     * @param start
-     * @param end
+     * Query
+     * Query the Database on the Fulltext Search index and return the specified fields
+     * of all matching documents. Optionally limit the results.
+     *
+     *
+     * Example URL:
+     * /query?length__lte=1&severity_index__gt=0&fields=area&fields=length&limit=200
+     *
+     * Will parse to:
+     * filters = [[length, lte, 1], [severity_index, gt, 0]]
+     * fields  = [area, length]
+     * limit   = 200
      * @returns any Successful Response
      * @throws ApiError
      */
-    public static areaAreaGet(
-        start: number = 1451606400000,
-        end: number = 1483228799000,
-    ): CancelablePromise<any> {
+    public static queryQueryGet({
+        filterParams = '',
+        fields,
+        limit = 999999,
+    }: {
+        filterParams?: string,
+        fields?: Array<string>,
+        limit?: number,
+    }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/area',
+            url: '/query',
             query: {
-                'start': start,
-                'end': end,
-            },
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
-    /**
-     * Length
-     * @param start
-     * @param end
-     * @returns any Successful Response
-     * @throws ApiError
-     */
-    public static lengthLengthGet(
-        start: number = 1451606400000,
-        end: number = 1483228799000,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/length',
-            query: {
-                'start': start,
-                'end': end,
-            },
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
-    /**
-     * Severity
-     * @param start
-     * @param end
-     * @returns any Successful Response
-     * @throws ApiError
-     */
-    public static severitySeverityGet(
-        start: number = 1451606400000,
-        end: number = 1483228799000,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/severity',
-            query: {
-                'start': start,
-                'end': end,
+                'filter_params': filterParams,
+                'fields': fields,
+                'limit': limit,
             },
             errors: {
                 422: `Validation Error`,

@@ -3,53 +3,51 @@ import ReactSelect from "react-select";
 import { components } from "react-select";
 import WindowManager from "./WindowManager";
 
-
 export class CheckboxDropdown extends Component {
   constructor(props) {
     super(props);
     this.state = {
       selected: this.props.items,
-      nonSelected: []
+      nonSelected: [],
     };
   }
 
   onChange = (selected) => {
-    const nonSelected = []
+    const nonSelected = [];
 
     this.props.items.forEach((item) => {
       item.isSelected = selected.includes(item);
       if (!item.isSelected) {
-        nonSelected.push(item)
+        nonSelected.push(item);
       }
-    })
+    });
 
     this.setState({
       selected: selected,
-      nonSelected: nonSelected
+      nonSelected: nonSelected,
     });
 
     WindowManager.setState(selected, nonSelected);
   };
 
   onFocus = () => {
-    const selected = []
-    const nonSelected = []
-    
+    const selected = [];
+    const nonSelected = [];
+
     this.props.items.forEach((item) => {
-      item.isSelected = WindowManager.isVisible(item.value)
+      item.isSelected = WindowManager.isVisible(item.value);
       if (item.isSelected) {
         selected.push(item);
-      }
-      else {
+      } else {
         nonSelected.push(item);
       }
-    })
+    });
 
     this.setState({
       selected: selected,
-      nonSelected: nonSelected
+      nonSelected: nonSelected,
     });
-  }
+  };
 
   close = () => {
     const element = document.getElementById("react-select-2-input");
@@ -57,7 +55,7 @@ export class CheckboxDropdown extends Component {
     if (element) {
       element.blur();
     }
-  }
+  };
 
   render() {
     return (
@@ -79,17 +77,17 @@ export class CheckboxDropdown extends Component {
               return (
                 <div>
                   <components.Option {...props}>
-                    <input 
-                      type="checkbox" 
-                      id={`${props.value}-check`} 
-                      checked={props.isSelected} 
-                      onChange={() => null} 
+                    <input
+                      type="checkbox"
+                      id={`${props.value}-check`}
+                      checked={props.isSelected}
+                      onChange={() => null}
                     />{" "}
                     <label>{props.label}</label>
                   </components.Option>
                 </div>
               );
-            }
+            },
           }}
           onChange={this.onChange}
           onFocus={this.onFocus}

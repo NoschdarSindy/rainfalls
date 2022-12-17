@@ -5,11 +5,10 @@ import ComparisonView from "./components/ComparisonView";
 import IntervalView from "./components/IntervalView";
 import WindowManager from "./components/WindowManager";
 
-
 const VIEWS = {
   comparison: <ComparisonView title="Comparison" />,
   intervalA: <IntervalView title="Interval A" />,
-  intervalB: <IntervalView title="Interval B" />
+  intervalB: <IntervalView title="Interval B" />,
 };
 
 const App = () => (

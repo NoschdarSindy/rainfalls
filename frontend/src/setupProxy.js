@@ -1,10 +1,11 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
-//Any request path that begins with "/" and is not requesting a file will be interpreted as an API call and redirected to the server
-
 module.exports = function (app) {
   const pathFilter = (path, req) => {
-    return path.length > 1 && !path.includes(".");
+    return (
+      !["js", "json", "map"].includes(path.split(".").pop()) && // don't send requests of these filetypes to server (used for hot-update)
+      req.get("Sec-Fetch-Dest") === "empty"
+    );
   };
 
   app.use(

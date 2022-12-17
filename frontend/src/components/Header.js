@@ -1,10 +1,8 @@
-import { DefaultApi as Api } from "./../client/services/DefaultApi";
-import Async from "react-async";
-import React, { useState } from "react";
+import { useState } from "react";
 import { CheckboxDropdown } from "./CheckboxDropdown";
 import { Button, Col, Row } from "react-bootstrap";
-import { Chip } from "@mui/material";
 import HelpModal from "./HelpModal";
+import FilterModal from "./filter/FilterModal";
 
 export default function Header() {
   const [state, setState] = useState({
@@ -35,28 +33,7 @@ export default function Header() {
           <HelpModal />
         </Col>
       </Row>
-      <Row className="border-top pt-1">
-        <Col className="col-md-auto align-bottom">
-          <Button variant="primary" className="btn-sm">
-            Add filter
-          </Button>
-          &nbsp;
-          <Chip
-            label="Filter 1"
-            variant="outlined"
-            onDelete={() => {}}
-            className={"chip"}
-          />
-          &nbsp;
-          <Chip
-            label="Filter 2"
-            variant="outlined"
-            onDelete={() => {}}
-            className={"chip text-end"}
-          />
-        </Col>
-        <Col className="text-end">123,456 results</Col>
-      </Row>
+      <FilterModal />
     </header>
   );
 }

@@ -47,6 +47,7 @@ async def detail(id: int):
 async def query(
     request: Request,
     response: Response,
+    filter_params: Optional[str] = "",
     fields: Optional[List[str]] = Query(None),
     limit: Optional[int] = 999999,
 ):
@@ -64,12 +65,13 @@ async def query(
     limit   = 200
     """
 
-    query_params = parse_querystring(str(request.query_params))
+    query_string = filter_params or str(request.query_params)
+    query_params = parse_querystring(query_string)
 
     query_params.pop("limit", None)
     query_params.pop("fields", None)
 
-    fields = fields or ["area", "length", "severity_index"]
+    fields = fields or ["event_id", "area", "length", "severity_index", "start_time"]
     filters = [key.split("__") + value for key, value in query_params.items()]
 
     try:
