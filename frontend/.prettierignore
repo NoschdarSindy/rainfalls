@@ -1,4 +1,7 @@
 # Ignore artifacts:
 build
+node_modules
+Database
 coverage
 src/client
+src/components/WindowManager.js

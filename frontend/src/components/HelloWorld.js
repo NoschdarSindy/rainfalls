@@ -3,7 +3,7 @@ import Async from "react-async";
 
 export default function HelloWorld() {
   const getData = async () => {
-    return Api.detailDetailIdGet(199900001);
+    return Api.detailDetailIdGet({ id: 199900001 });
   };
 
   const MyComponent = () => (

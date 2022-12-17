@@ -1,5 +1,5 @@
 import { Button, Modal } from "react-bootstrap";
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function HelpModal() {
   const [show, setShow] = useState(false);

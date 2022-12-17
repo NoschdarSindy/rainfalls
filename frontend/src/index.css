@@ -1,5 +1,6 @@
 :root {
   --mosaic-color: #abb3bf;
+  --mui-blue: #2885ff;
 }
 
 * {
@@ -25,14 +26,24 @@ header h5 {
 }
 
 /* Chips */
+.chip {
+  margin-left: 0.4em !important;
+}
 .chip,
 .chip > [class$="label"] {
   margin-top: 0.1rem !important;
+}
+.num-results-container {
+  width: fit-content !important;
+  max-width: fit-content !important;
 }
 
 /* react-select */
 div[class$="control"] {
   min-height: unset !important;
+}
+div[class$="control"] div[class$="-indicatorContainer"] {
+  padding: 0 4px !important;
 }
 div[class$="control"] div[id$="-placeholder"] {
   padding-top: 5% !important;
@@ -100,4 +111,72 @@ div[id$="-listbox"] {
 }
 #mosaic-frame {
   height: 100%;
+}
+/* filter modal */
+.filter-modal {
+  width: 50% !important;
+  max-width: 100% !important;
+}
+.filter-modal-content {
+  display: flex !important;
+  flex-direction: column;
+}
+.filter-modal .filter-row:nth-child(odd) {
+  background: #f5f5f5;
+}
+.filter-modal .row {
+  width: 80% !important;
+  align-self: center !important;
+}
+.filter-modal input:invalid {
+  border-color: red !important;
+  box-shadow: 0 0 0 1px crimson !important;
+}
+.filter-modal input[type="tel"] {
+  padding: 0 !important;
+  background-color: white;
+}
+.filter-modal input[type="tel"] + div > button {
+  padding-left: 0 !important;
+  background-color: white;
+}
+.filter-modal .filter-input-container {
+  max-width: 12.2em !important;
+  width: 12.2em !important;
+}
+.filter-modal .filter-input-container > * {
+  width: 100% !important;
+}
+.filter-modal .filter-input-container > input {
+  box-sizing: border-box !important;
+  border-radius: 4px !important;
+  padding: 2px 8px !important;
+  box-shadow: none !important;
+}
+.filter-modal .filter-input-container > input:focus:valid {
+  box-sizing: border-box !important;
+  border-color: var(--mui-blue) !important;
+  box-shadow: 0 0 0 1px var(--mui-blue) !important;
+}
+.date-picker-container {
+  background-color: white;
+}
+.date-picker-container button {
+  background-color: unset !important;
+}
+
+.date-picker input:first-of-type {
+  box-sizing: content-box !important;
+  padding: 6px 0 2px 8px !important;
+  vertical-align: bottom;
+}
+.fa-trash-can:hover,
+.fa-circle-plus:hover {
+  cursor: pointer;
+  color: black;
+}
+
+.filter-modal form:invalid .btn-primary {
+  opacity: 0.3;
+  pointer-events: none;
 }
