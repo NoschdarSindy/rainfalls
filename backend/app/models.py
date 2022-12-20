@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from constants import *
+from constants import AREA, DATASET_PATH, LENGTH, REDIS_URL, SEV_INDEX, START_TIME
 from redis import asyncio as aioredis
 from redis.commands.json.path import Path as jsonPath
 
@@ -218,7 +218,7 @@ class RedisJSONClient:
                 "lt":  f"  @{field}:[-inf    ({value}]",
                 "lte": f"  @{field}:[-inf     {value}]",
                 "gt":  f"  @{field}:[({value} inf]",
-                "gte": f"  @{field}:[({value} inf]",
+                "gte": f"  @{field}:[{value}  inf]",
             }
             # fmt: on
 
@@ -227,8 +227,10 @@ class RedisJSONClient:
         predicates_string = " ".join(predicates)
         return f"'{predicates_string}'"
 
-    async def initialize_database(self, path_to_dataset=DATASET_PATH, force_wipe=True):
-        weather_events = load_dataset(path_to_dataset)
+    async def initialize_database(
+        self, path_to_dataset=DATASET_PATH, dataset=None, force_wipe=True
+    ):
+        dataset = dataset or load_dataset(path_to_dataset)
 
         if force_wipe:
             await self.aioredis.execute_command("FLUSHDB")
@@ -242,7 +244,7 @@ class RedisJSONClient:
             "events", AREA, LENGTH, SEV_INDEX, START_TIME
         )
 
-        for event in weather_events:
+        for event in dataset:
             await self.add_item_as_json_document(
                 event.event_id,
                 json.dumps(event, default=lambda o: o.__dict__),

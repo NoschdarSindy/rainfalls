@@ -8,6 +8,14 @@ services:
       - $PWD/database:/database
     command: --dir /database --loadmodule /usr/lib/redis/modules/redistimeseries.so --loadmodule /usr/lib/redis/modules/rejson.so --loadmodule /usr/lib/redis/modules/redisearch.so
 
+  redis-test:
+    image: redislabs/redismod
+    ports:
+      - "6378:6379"
+    volumes:
+      - $PWD/database/test:/database
+    command: --dir /database --loadmodule /usr/lib/redis/modules/redistimeseries.so --loadmodule /usr/lib/redis/modules/rejson.so --loadmodule /usr/lib/redis/modules/redisearch.so
+
   backend:
     restart: always
     build:
