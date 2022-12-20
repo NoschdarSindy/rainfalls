@@ -1,9 +1,8 @@
-import json
-import re
-
-import constants
 from fastapi.openapi.utils import get_openapi
 from main import app
+import json
+import constants
+import re
 
 with open("../../frontend/src/client/openapi.json", "w+") as f:
     json.dump(
