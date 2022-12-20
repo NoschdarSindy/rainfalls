@@ -7,6 +7,17 @@ build:
 	make client
 	docker-compose build
 
+.PHONY: test
+test:
+	@echo "Bringing up test DB"
+	@docker-compose up -d redis-test
+	@sleep 1
+
+	PYTHONPATH=./backend/app pytest
+
+	@echo "Tearing down test DB"
+	@docker-compose stop redis-test
+
 .PHONY: run
 run:
 	docker-compose up
