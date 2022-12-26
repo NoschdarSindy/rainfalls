@@ -213,7 +213,7 @@ class RedisJSONClient:
             # See https://redis.io/docs/stack/search/reference/query_syntax/
             # fmt: off
             predicate_mapping = { 
-                "neq": f"-(@{field}:[{value}  {value}])",
+                "neq": f"(-@{field}:[{value}  {value}])",
                 "eq":  f"  @{field}:[{value}  {value}]",
                 "lt":  f"  @{field}:[-inf    ({value}]",
                 "lte": f"  @{field}:[-inf     {value}]",
