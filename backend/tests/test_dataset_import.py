@@ -16,8 +16,11 @@ def json_data():
             "length": 1,
             "si": 1,
             "start": "2022-01-01T00:00:00+00:00",
-            "start_time_ms": 1640995200000,
             "timeseries": [],
+            "meanLat": 1,
+            "meanLon": 1,
+            "meanPrec": 1,
+            "maxPrec": 1,
         },
         2: {
             "id": 2,
@@ -25,8 +28,11 @@ def json_data():
             "length": 2,
             "si": 2,
             "start": "2022-02-02T00:00:00+00:00",
-            "start_time_ms": 1643756400000,
             "timeseries": [],
+            "meanLat": 2,
+            "meanLon": 2,
+            "meanPrec": 2,
+            "maxPrec": 2,
         },
     }
 
@@ -61,7 +67,10 @@ async def test_data_import(redis_test_client, dataset):
         "area": 1,
         "length": 1,
         "severity_index": 1,
-        "start_time": 1640995200000,
-        "start_time_ms": 1640995200000,
+        "start_time": 1640995200,
         "timeseries": [],
+        "mean_lat": 1,
+        "mean_lon": 1,
+        "mean_prec": 1,
+        "max_prec": 1,
     }

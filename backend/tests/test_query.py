@@ -13,8 +13,11 @@ def json_data():
             "length": 1,
             "si": 1,
             "start": "2022-01-01T00:00:00+00:00",
-            "start_time_ms": 1640995200000,
             "timeseries": [],
+            "meanLat": 1,
+            "meanLon": 1,
+            "meanPrec": 1,
+            "maxPrec": 1,
         },
         2: {
             "id": 2,
@@ -22,8 +25,11 @@ def json_data():
             "length": 2,
             "si": 2,
             "start": "2022-02-02T00:00:00+00:00",
-            "start_time_ms": 1643756400000,
             "timeseries": [],
+            "meanLat": 2,
+            "meanLon": 2,
+            "meanPrec": 2,
+            "maxPrec": 2,
         },
         3: {
             "id": 3,
@@ -31,8 +37,11 @@ def json_data():
             "length": 3,
             "si": 3,
             "start": "2022-03-03T00:00:00+00:00",
-            "start_time_ms": 1646262000000,
             "timeseries": [],
+            "meanLat": 3,
+            "meanLon": 3,
+            "meanPrec": 3,
+            "maxPrec": 3,
         },
         4: {
             "id": 4,
@@ -40,8 +49,11 @@ def json_data():
             "length": 4,
             "si": 4,
             "start": "2022-04-04T00:00:00+00:00",
-            "start_time_ms": 1649030400000,
             "timeseries": [],
+            "meanLat": 4,
+            "meanLon": 4,
+            "meanPrec": 4,
+            "maxPrec": 4,
         },
         5: {
             "id": 5,
@@ -49,8 +61,11 @@ def json_data():
             "length": 5,
             "si": 5,
             "start": "2022-05-05T00:00:00+00:00",
-            "start_time_ms": 1651701600000,
             "timeseries": [],
+            "meanLat": 5,
+            "meanLon": 5,
+            "meanPrec": 5,
+            "maxPrec": 5,
         },
     }
 
@@ -81,41 +96,43 @@ async def test_query_no_filters(redis_test_client, json_data, dataset):
 
     assert count == len(json_data.keys())
 
+    print (result)
+
     assert result == [
         {
             "event_id": 1,
             "area": 1,
             "length": 1,
             "severity_index": 1,
-            "start_time": 1640995200000,
+            "start_time": 1640995200,
         },
         {
             "event_id": 2,
             "area": 2,
             "length": 2,
             "severity_index": 2,
-            "start_time": 1643760000000,
+            "start_time": 1643760000,
         },
         {
             "event_id": 3,
             "area": 3,
             "length": 3,
             "severity_index": 3,
-            "start_time": 1646265600000,
+            "start_time": 1646265600,
         },
         {
             "event_id": 4,
             "area": 4,
             "length": 4,
             "severity_index": 4,
-            "start_time": 1649030400000,
+            "start_time": 1649030400,
         },
         {
             "event_id": 5,
             "area": 5,
             "length": 5,
             "severity_index": 5,
-            "start_time": 1651708800000,
+            "start_time": 1651708800,
         },
     ]
 
@@ -136,7 +153,7 @@ async def test_query_no_filters_with_limit(redis_test_client):
             "area": 1,
             "length": 1,
             "severity_index": 1,
-            "start_time": 1640995200000,
+            "start_time": 1640995200,
         },
     ]
 

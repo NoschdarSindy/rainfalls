@@ -10,12 +10,12 @@ from redis.commands.json.path import Path as jsonPath
 log = logging.getLogger(__name__)
 
 
-def datetime_to_posix_timestamp_milliseconds(dt):
+def datetime_to_posix_timestamp_seconds(dt):
     if isinstance(dt, str):
         dt = datetime.fromisoformat(dt)
 
     # datetime.timestamp returns seconds since epoch as float, with ms after period
-    return int(dt.timestamp() * 1000)
+    return int(dt.timestamp())
 
 
 class WeatherEvent:
@@ -26,16 +26,22 @@ class WeatherEvent:
         length,
         severity_index,
         start_time,
-        start_time_ms,
         timeseries,
+        mean_lat,
+        mean_lon,
+        mean_prec,
+        max_prec
     ):
         self.event_id = event_id
         self.area = area
         self.length = length
         self.severity_index = severity_index
         self.start_time = start_time
-        self.start_time_ms = start_time_ms
         self.timeseries = timeseries
+        self.mean_lat = mean_lat
+        self.mean_lon = mean_lon
+        self.mean_prec = mean_prec
+        self.max_prec = max_prec
 
     @classmethod
     def from_dict(cls, dict_):
@@ -44,12 +50,15 @@ class WeatherEvent:
             area=dict_["area"],
             length=dict_["length"],
             severity_index=dict_["si"],
-            start_time=datetime_to_posix_timestamp_milliseconds(dict_["start"]),
-            start_time_ms=dict_["start_time_ms"],
+            start_time=datetime_to_posix_timestamp_seconds(dict_["start"]),
             timeseries=[
                 DetailWeatherEvent.from_dict(sub_event, ix)
                 for ix, sub_event in enumerate(dict_["timeseries"])
             ],
+            mean_lat=dict_["meanLat"],
+            mean_lon=dict_["meanLon"],
+            mean_prec=dict_["meanPrec"],
+            max_prec=dict_["maxPrec"]
         )
 
 
@@ -90,7 +99,7 @@ class DetailWeatherEvent:
             event_id=dict_["index"],
             sequence_id=sequence_id,
             area=dict_["area"],
-            date=datetime_to_posix_timestamp_milliseconds(dict_["date"]),
+            date=datetime_to_posix_timestamp_seconds(dict_["date"]),
             latitude=dict_["lat"],
             latitude_max=dict_["latMax"],
             longitude=dict_["lon"],
@@ -206,7 +215,7 @@ class RedisJSONClient:
         for (field, operator, value) in filters:
 
             if field == START_TIME:
-                value = str(datetime_to_posix_timestamp_milliseconds(value))
+                value = str(datetime_to_posix_timestamp_seconds(value))
 
             # Numeric filters are inclusive
             # Exclusive min or max are expressed with ( prepended to the number
@@ -257,4 +266,4 @@ def load_dataset(path_to_dataset):
     dataset = json.load(Path(path_to_dataset).open())
 
     # Returns a generator
-    return (WeatherEvent.from_dict(event) for event in dataset.values())
+    return (WeatherEvent.from_dict(event) for event in dataset)
