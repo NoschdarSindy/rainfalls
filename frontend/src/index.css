@@ -65,6 +65,7 @@ div[id$="-listbox"] {
 }
 .mosaic-window-body {
   padding: 1%;
+  overflow: scroll !important;
 }
 .mosaic-controls-container {
   margin: auto 0.2em auto auto;
@@ -109,9 +110,7 @@ div[id$="-listbox"] {
 .expand-button::before {
   content: "\2922";
 }
-#mosaic-frame {
-  height: 100%;
-}
+
 /* filter modal */
 .filter-modal {
   width: 50% !important;
@@ -180,3 +179,16 @@ div[id$="-listbox"] {
   opacity: 0.3;
   pointer-events: none;
 }
+
+/* Global Scatter */
+.global-scatter-parent {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;  
+}
+
+.global-scatter-child {
+  display: inline-block;
+  margin: 10px;
+}
+
