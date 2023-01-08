@@ -14,7 +14,6 @@ const VIEWS = {
 const App = () => (
   <>
     <Header />
-    <div id="mosaic-frame">
       <Mosaic
         renderTile={(id, path) => (
           <div id={`${id}-mosaic`}>
@@ -59,7 +58,6 @@ const App = () => (
           },
         }}
       />
-    </div>
   </>
 );
 

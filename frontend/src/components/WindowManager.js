@@ -70,15 +70,16 @@ export default class WindowManager {
     let left =  parseInt(parentStyle.left);
   
     return inset !== 100 && left + right !== 100;
-  }
+  } 
 
   static setInset(id) {
-    const root = document.getElementById("mosaic-frame")
+    const root = document.getElementsByClassName("mosaic")[0]
+    console.log(root);
     if (!root) {
       return;
     }
 
-    let element = root.firstChild.firstChild.firstChild;
+    let element = root.firstChild.firstChild;
     if (element.nodeName === "#text") {
       element = element.parentNode.nextSibling.firstChild
     }

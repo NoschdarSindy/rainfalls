@@ -11,6 +11,10 @@ from fastapi_cache.decorator import cache
 from models import RedisJSONClient
 from utils import cache_key_with_query_params
 
+import datetime as dt
+import pandas as pd
+
+
 log = logging.getLogger(__name__)
 app = FastAPI(title="Gummistiefel B")
 
@@ -86,3 +90,41 @@ async def query(
         return {"error": f"Invalid query. Check the console for details.\n{str(exc)}"}
 
     return {"count": count, "results": data}
+
+
+@app.get("/overview/{field}/{start}/{end}/{bins}")
+@app.get("/overview/{field}/{start}/{end}/")
+@app.get("/overview/{field}/{bins}")
+@app.get("/overview/{field}/")
+# not beeing cached yet
+async def overview(field: str, start: str = "1970-01-01", end: str = "2018-01-01", bins: int = 20): 
+    try:
+        count, data = await redis_client.query_events(
+            filters=[["start_time", "gte", start], 
+                        ["start_time", "lt", end],
+                        ["severity_index", "gt", 0]],
+            limit=999999,
+            fields=["start_time", field],
+        )
+    except Exception as exc:
+        log.error(str(exc))
+        return Response(f"Overview over field '{field}' from {start} to {end} with {str(bins)} intervals not possible. Check the console for details.\n{str(exc)}", status_code=400)
+    
+    limit = count/bins
+    stat_values = []
+    for i in range(bins):
+        stat_data = data[int(i*limit):int((i+1)*limit)]
+        stat_df = pd.DataFrame(stat_data)
+        stat_df["start_time"] = pd.to_datetime(stat_data[0]["start_time"], unit="ms")
+        stat_values.append({
+            "mean": stat_df.mean(numeric_only=True)[field],
+            "quantile": stat_df.quantile(0.99, numeric_only=True)[field],
+            "start_time": pd.to_datetime(stat_data[0]["start_time"], unit="ms")
+        })
+    
+    all_data = pd.DataFrame(data)
+    outlier_q = all_data.quantile(0.999)
+    outlier_df = all_data[all_data[field] > outlier_q[field]]
+    outlier_df.rename({field : "value"}, axis="columns", inplace=True)
+
+    return {"stat": stat_values, "outliers": outlier_df.to_dict(orient="records") }

@@ -1,8 +1,8 @@
 {
-  "APP_PATH": "/home/nosh/PycharmProjects/va/backend/app",
+  "APP_PATH": "/home/main/Desktop/Workspace/Studies/HU/Visual Analytics/backend/app",
   "REDIS_URL": "redis://127.0.0.1:6379",
   "REDIS_TEST_URL": "redis://127.0.0.1:6378",
-  "DATASET_PATH": "/home/nosh/PycharmProjects/va/backend/app/../../dataset.json",
+  "DATASET_PATH": "/home/main/Desktop/Workspace/Studies/HU/Visual Analytics/backend/app/../../dataset.json",
   "ONE_HOUR_IN_SECONDS": 3600,
   "AREA": "area",
   "LENGTH": "length",
