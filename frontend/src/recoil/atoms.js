@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, atomFamily } from "recoil";
 import _, { LABELS } from "../util";
 
 export const filterByDropdownItemsAtom = atom({
@@ -47,4 +47,26 @@ export const filtersAtom = atom({
 export const previousFiltersAtom = atom({
   key: "previousFilters",
   default: {},
+});
+
+export const intervalViewAtoms = atomFamily({
+  key: "intervalView",
+  default: (id) =>
+    [
+      // Linker IntervalView state
+      {
+        mapState: {
+          eventId: 0,
+          bounds: {},
+        },
+      },
+
+      // Rechter IntervalView state
+      {
+        mapState: {
+          eventId: 34,
+          bounds: {},
+        },
+      },
+    ][id],
 });
