@@ -241,6 +241,8 @@ class RedisJSONClient:
     ):
         dataset = dataset or load_dataset(path_to_dataset)
 
+        await self.aioredis.execute_command("FT.CONFIG SET MAXSEARCHRESULTS 1000000")
+
         if force_wipe:
             await self.aioredis.execute_command("FLUSHDB")
         else:
