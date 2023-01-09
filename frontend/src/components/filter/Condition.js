@@ -85,6 +85,8 @@ export default function Condition(props) {
           onChange={handleDatePick}
           key={`${field}.${conditionIndex}.date`}
           inputFormat={"DD.MM.YYYY HH:mm"}
+          ampm={false}
+          ampmInClock={false}
           renderInput={(params) => (
             <TextField
               {...params}

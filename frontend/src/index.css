@@ -55,6 +55,7 @@ div[id$="-listbox"] {
 }
 
 /* react-mosaic */
+
 .mosaic-window {
   height: 100%;
   width: 100%;
@@ -100,7 +101,7 @@ div[id$="-listbox"] {
 .mosaic-default-control::before {
   font-family: FontAwesome;
   font-weight: bold;
-  position: relative;
+  /* position: relative; */
   bottom: 4.5px;
   right: 1.5px;
 }
@@ -215,4 +216,3 @@ div[id^="interval"] .mosaic-window-body {
   display: inline-block;
   margin: 10px;
 }
-
