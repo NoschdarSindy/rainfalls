@@ -94,7 +94,7 @@ div[id$="-listbox"] {
   border: 1px solid rgba(0, 0, 0, 0.175);
   border-radius: 0.25rem;
 }
-.mosaic-default-control:hover{
+.mosaic-default-control:hover {
   color: gray;
 }
 .mosaic-default-control::before {
@@ -180,11 +180,35 @@ div[id$="-listbox"] {
   pointer-events: none;
 }
 
+/* IntervalViews */
+.interval-mosaic .mosaic-window-toolbar {
+  display: none !important;
+}
+.interval-mosaic .mosaic-tile {
+  margin: 0 !important;
+}
+.interval-mosaic .mosaic-root {
+  inset: 0;
+}
+.interval-mosaic .mosaic-root .mosaic-tile div .mosaic-window {
+  border-radius: 0 !important;
+}
+div[id^="interval"] .mosaic-window-body {
+  padding: 0;
+}
+.interval-mosaic .mosaic-split.-column,
+.interval-mosaic .mosaic-split.-column:hover {
+  background-color: var(--mosaic-color) !important;
+}
+.leaflet-bottom.leaflet-right {
+  display: none;
+}
+
 /* Global Scatter */
 .global-scatter-parent {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;  
+  flex-wrap: wrap;
 }
 
 .global-scatter-child {

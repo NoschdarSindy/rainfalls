@@ -135,7 +135,7 @@ class RedisJSONClient:
         return await self.aioredis.execute_command("EXISTS", key)
 
     async def get_key_json(self, key):
-        return await self.aioredis.execute_command("JSON.GET", key)
+        return await self.aioredis.json().get(key)
 
     async def mget_keys_json(self, keys):
         return await self.aioredis.json().mget(keys=keys, path=jsonPath.root_path())

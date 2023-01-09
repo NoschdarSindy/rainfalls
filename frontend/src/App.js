@@ -7,8 +7,8 @@ import WindowManager from "./components/WindowManager";
 
 const VIEWS = {
   comparison: <ComparisonView title="Comparison" />,
-  intervalA: <IntervalView title="Interval A" />,
-  intervalB: <IntervalView title="Interval B" />,
+  intervalA: <IntervalView title="Interval A" id={0} />,
+  intervalB: <IntervalView title="Interval B" id={1} />,
 };
 
 const App = () => (
@@ -28,15 +28,19 @@ const App = () => (
                       {props.title}
                     </div>
                     <div className="mosaic-window-toolbar-element mosaic-controls-container">
-                      <button 
+                      <button
                         title={"Maximize Window"}
                         className="mosaic-default-control expand-button"
-                        onClick={() => {WindowManager.maximize(id)}}
+                        onClick={() => {
+                          WindowManager.maximize(id);
+                        }}
                       />
-                      <button 
+                      <button
                         title={"Close Window"}
                         className="mosaic-default-control close-button"
-                        onClick={() => {WindowManager.close(id)}}
+                        onClick={() => {
+                          WindowManager.close(id);
+                        }}
                       />
                     </div>
                   </div>
