@@ -34,7 +34,7 @@ export const filtersAtom = atom({
         conditions: [
           {
             operator: "gt",
-            value: 13,
+            value: 2,
             enabled: true,
           },
         ],
@@ -47,6 +47,15 @@ export const filtersAtom = atom({
 export const previousFiltersAtom = atom({
   key: "previousFilters",
   default: {},
+});
+
+// Track the min and max timestamp of the current interval defined in GlobalTimeline
+export const intervalRangeAtom = atom({
+  key: "intervalRange",
+  default: {
+    min: 0,
+    max: 0,
+  },
 });
 
 export const intervalViewAtoms = atomFamily({
