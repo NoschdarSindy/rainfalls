@@ -1,21 +1,5 @@
 version: "3.8"
 services:
-  redis:
-    image: redis/redis-stack-server
-    ports:
-      - "6379:6379"
-    volumes:
-      - $PWD/database:/data
-    environment:
-      - REDISSEARCH_ARGS="MAXSEARCHRESULTS 1000000"
-
-  redis-test:
-    image: redis/redis-stack-server
-    ports:
-      - "6378:6379"
-    volumes:
-      - $PWD/database/test:/data
-
   backend:
     restart: always
     build:
@@ -23,17 +7,16 @@ services:
       dockerfile: backend/Dockerfile
     ports:
       - "8080:8080"
-    depends_on:
-      - redis
     volumes:
       - $PWD/backend/app:/backend/app
     environment:
-      - REDIS_URL=redis://redis:6379
-      - DATASET_PATH=/backend/dataset.json
+      - DATASET_PATH=/backend/dataset.df.pickle
 
   frontend:
     restart: always
     build: frontend
+    depends_on:
+      - backend
     ports:
       - "3000:3000"
     volumes:

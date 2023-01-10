@@ -60,7 +60,7 @@ export class DefaultApi {
     public static queryQueryGet({
         filterParams = '',
         fields,
-        limit = 999999,
+        limit,
     }: {
         filterParams?: string,
         fields?: Array<string>,

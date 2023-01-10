@@ -13,9 +13,9 @@ ENV PATH="/backend/.venv/bin:$PATH"
 RUN pip install poetry
 RUN apt-get update && apt-get -y install gcc
 
-COPY ./dataset.json /backend/dataset.json
+COPY ./dataset.df.pickle ./dataset.df.pickle
 COPY ./backend /backend
 
 RUN poetry install --no-interaction --no-root -vvv
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--app-dir", "/backend/app/"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--app-dir", "/backend/app/", "--reload"]
