@@ -4,29 +4,25 @@ from typing import List, Optional
 from urllib.parse import parse_qs as parse_querystring
 
 import pandas as pd
-from constants import DATASET_PATH, ONE_HOUR_IN_SECONDS, REDIS_URL
+from constants import DATASET_PATH, ONE_HOUR_IN_SECONDS
 from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
-from models import RedisJSONClient
+from models import DataFrameDBClient
 from utils import cache_key_with_query_params
 
 log = logging.getLogger(__name__)
 app = FastAPI(title="Gummistiefel B")
 
-redis_client = RedisJSONClient(redis_url=REDIS_URL)
+db_client = DataFrameDBClient()
 
 
 @app.on_event("startup")
 async def startup_event():
-    await redis_client.initialize_database(
-        path_to_dataset=DATASET_PATH,
-        force_wipe=False,
-    )
-
-    FastAPICache.init(RedisBackend(redis_client.aioredis), prefix="cache")
+    db_client.initialize_database_from_path(dataset_path=DATASET_PATH)
+    FastAPICache.init(InMemoryBackend(), prefix="cache")
 
 
 @app.get("/")
@@ -36,7 +32,7 @@ async def hello_world():
 
 @app.get("/detail/{id}")
 async def detail(id: int):
-    data = await redis_client.get_key_json(key=id)
+    data = db_client.get_event_by_id(event_id=id)
 
     if data is None:
         return Response(f"Event with ID {id} was not found", status_code=404)
@@ -45,13 +41,13 @@ async def detail(id: int):
 
 
 @app.get("/query", response_class=JSONResponse)
-# @cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
+@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
 async def query(
     request: Request,
     response: Response,
     filter_params: Optional[str] = "",
     fields: Optional[List[str]] = Query(None),
-    limit: Optional[int] = 999999,
+    limit: Optional[int] = None,
 ):
     """
     Query the Database on the Fulltext Search index and return the specified fields
@@ -77,7 +73,7 @@ async def query(
     filters = [key.split("__") + value for key, value in query_params.items()]
 
     try:
-        count, data = await redis_client.query_events(
+        count, data = db_client.query_events(
             filters=filters,
             limit=limit,
             fields=fields,
@@ -94,19 +90,19 @@ async def query(
 @app.get("/overview/{field}/{start}/{end}/")
 @app.get("/overview/{field}/{bins}")
 @app.get("/overview/{field}/")
-# not beeing cached yet
+@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
 async def overview(
     field: str, start: str = "1970-01-01", end: str = "2018-01-01", bins: int = 20
 ):
     try:
-        count, data = await redis_client.query_events(
+        count, data = db_client.query_events(
             filters=[
                 ["start_time", "gte", start],
                 ["start_time", "lt", end],
                 ["severity_index", "gt", 0],
             ],
             limit=999999,
-            fields=["start_time", field],
+            fields=["start", field],
         )
     except Exception as exc:
         log.error(str(exc))
@@ -115,23 +111,24 @@ async def overview(
             status_code=400,
         )
 
-    limit = count / bins
+    limit = count // bins
     stat_values = []
+
     for i in range(bins):
-        stat_data = data[int(i * limit) : int((i + 1) * limit)]
+        stat_data = data[i * limit : (i + 1) * limit]
         stat_df = pd.DataFrame(stat_data)
-        stat_df["start_time"] = pd.to_datetime(stat_data[0]["start_time"], unit="ms")
+        stat_df["start_time"] = stat_data[0]["start"]
         stat_values.append(
             {
                 "mean": stat_df.mean(numeric_only=True)[field],
                 "quantile": stat_df.quantile(0.99, numeric_only=True)[field],
-                "start_time": pd.to_datetime(stat_data[0]["start_time"], unit="ms"),
+                "start_time": stat_data[0]["start"],
             }
         )
 
     all_data = pd.DataFrame(data)
     outlier_q = all_data.quantile(0.999)
-    outlier_df = all_data[all_data[field] > outlier_q[field]]
-    outlier_df.rename({field: "value"}, axis="columns", inplace=True)
+    outlier_df = all_data.loc[all_data[field] > outlier_q[field]]
+    outlier_df = outlier_df.rename({field: "value"}, axis="columns")
 
-    return {"stat": stat_values, "outliers": outlier_df.to_dict(orient="records")}
+    return {"stat": stat_values, "outliers": outlier_df.to_dict("records")}
