@@ -1,5 +1,4 @@
 import { Button, Col, Modal, Row } from "react-bootstrap";
-import { useState } from "react";
 import FilterByDropdown from "./FilterByDropdown";
 import Filter from "./Filter";
 import { DefaultApi as Api } from "../../client";
@@ -7,6 +6,7 @@ import {
   filtersAtom,
   previousFiltersAtom,
   filterByDropdownItemsAtom,
+  filterModalVisibleAtom,
 } from "../../recoil/atoms";
 import { filtersToQueryParamsState } from "../../recoil/selectors";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -20,7 +20,7 @@ export default function FilterModal() {
   const filterByDropdownItems = useRecoilValue(filterByDropdownItemsAtom);
   const filtersToQueryParams = useRecoilValue(filtersToQueryParamsState);
 
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useRecoilState(filterModalVisibleAtom);
 
   const handleShow = () => {
     setPreviousFilters(() => filters);
