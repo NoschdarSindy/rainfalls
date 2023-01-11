@@ -1,10 +1,11 @@
 import Async from "react-async";
 import Highcharts from "highcharts/highstock";
 import Exporting from "highcharts/modules/exporting";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { filtersToQueryParamsState } from "../recoil/selectors";
-import { intervalRangeAtom } from "../recoil/atoms";
+import { filterModalVisibleAtom, intervalRangeAtom } from "../recoil/atoms";
 import { DefaultApi as Api } from "../client";
+import { useMemo } from "react";
 
 Exporting(Highcharts);
 
@@ -14,6 +15,8 @@ export default function GlobalTimeline() {
 
   // Store current interval min and max timestamp in state
   const setIntervalRange = useSetRecoilState(intervalRangeAtom);
+
+  const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
 
   function saveIntervalRangeToState(event) {
     let intervalRange = { min: event.min, max: event.max };
@@ -97,11 +100,14 @@ export default function GlobalTimeline() {
   }
 
   function fetchDataAndMakePlot() {
-    return (
-      <Async promiseFn={fetchData}>
-        <Async.Pending>Creating Plot...</Async.Pending>
-        <Async.Fulfilled>{(response) => makePlot(response)}</Async.Fulfilled>
-      </Async>
+    return useMemo(
+      () => (
+        <Async promiseFn={fetchData}>
+          <Async.Pending>Creating Plot...</Async.Pending>
+          <Async.Fulfilled>{(response) => makePlot(response)}</Async.Fulfilled>
+        </Async>
+      ),
+      [filterModalVisible]
     );
   }
 

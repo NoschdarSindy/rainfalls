@@ -1,6 +1,11 @@
 import { atom, atomFamily } from "recoil";
 import _, { LABELS } from "../util";
 
+export const filterModalVisibleAtom = atom({
+  key: "filterModalVisible",
+  default: false,
+});
+
 export const filterByDropdownItemsAtom = atom({
   key: "filterByDropdownItems",
   default: [_.AREA, _.LENGTH, _.SEV_INDEX, _.START_TIME].map((field) => ({
