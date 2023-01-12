@@ -74,6 +74,7 @@ export default class WindowManager {
 
   static setInset(id) {
     const root = document.getElementsByClassName("mosaic")[0]
+    console.log(root);
     if (!root) {
       return;
     }
