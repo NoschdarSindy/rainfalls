@@ -21,7 +21,7 @@ export default class GlobalScatter extends Component {
 
           if (data) {
             return (
-              <div className="global-scatter-child">
+              <div className="plot-view-child">
                 <Plot
                   data={[
                     {
@@ -47,10 +47,9 @@ export default class GlobalScatter extends Component {
                     },
                   ]}
                   layout={{
-                    title: `Development of '${this.props.field.replace(
-                      "_",
-                      " "
-                    )}'`,
+                    title: `Development of '${this.props.field.replace("_", " ")}'`,
+                    width: 600,
+                    height: 400
                   }}
                 />
               </div>

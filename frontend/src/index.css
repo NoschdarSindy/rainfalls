@@ -206,13 +206,13 @@ div[id^="interval"] .mosaic-window-body {
 }
 
 /* Global Scatter */
-.global-scatter-parent {
+.plot-view-parent {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
 }
 
-.global-scatter-child {
+.plot-view-child {
   display: inline-block;
   margin: 10px;
 }

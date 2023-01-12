@@ -210,4 +210,35 @@ export class DefaultApi {
         });
     }
 
+    /**
+     * Stats
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static statsStatsStartAEndAStartBEndBGet({
+        startA,
+        endA,
+        startB,
+        endB,
+    }: {
+        startA: string,
+        endA: string,
+        startB: string,
+        endB: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/stats/{startA}--{endA}/{startB}--{endB}/',
+            path: {
+                'startA': startA,
+                'endA': endA,
+                'startB': startB,
+                'endB': endB,
+            },
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
 }
