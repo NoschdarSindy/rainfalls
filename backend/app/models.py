@@ -72,7 +72,7 @@ class DataFrameDBClient:
 
         count_before_limit = len(filtered_df.index)
 
-        if limit:
+        if limit is not None:
             filtered_df = filtered_df.iloc[:limit]
 
         # apply fields filter so we only return relevant result fields
