@@ -13,9 +13,9 @@ export default class ComparisonView extends View {
       <div>
         <p>Ich bin ein ComparisonView</p>
         <div className="global-scatter-parent">
-          <GlobalScatter field="area" bins={20}/>
-          <GlobalScatter field="length" bins={20}/>
-          <GlobalScatter field="severity_index" bins={20}/>
+          <GlobalScatter field="area" bins={20} />
+          <GlobalScatter field="length" bins={20} />
+          <GlobalScatter field="severity_index" bins={20} />
         </div>
       </div>
     );
