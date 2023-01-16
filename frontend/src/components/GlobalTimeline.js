@@ -50,19 +50,21 @@ export default function GlobalTimeline() {
     ];
 
     for (let i = 0; i < numResults; i++) {
+      let startTimeMilliseconds = results[i].start_time * 1000;
+
       multiSeriesData[0].data[i] = [
-        results[i].start_time,
+        startTimeMilliseconds,
         results[i].severity_index,
       ];
-      multiSeriesData[1].data[i] = [results[i].start_time, results[i].length];
-      multiSeriesData[2].data[i] = [results[i].start_time, results[i].area];
+      multiSeriesData[1].data[i] = [startTimeMilliseconds, results[i].length];
+      multiSeriesData[2].data[i] = [startTimeMilliseconds, results[i].area];
     }
 
     Highcharts.stockChart(
       "container",
       {
         rangeSelector: {
-          selected: 4,
+          selected: 5,
           inputDateFormat: "%d.%m.%Y %H:%M",
           inputEditDateFormat: "%%d.%m.%Y %H:%M",
         },

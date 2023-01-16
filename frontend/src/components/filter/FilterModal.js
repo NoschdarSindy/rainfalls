@@ -42,7 +42,6 @@ export default function FilterModal() {
 
   const getNumResults = () => {
     const getData = ({ requestBody }) => {
-      console.log(filtersToQueryParams);
       return Api.queryQueryGet({
         limit: 0,
         filterParams: filtersToQueryParams,
