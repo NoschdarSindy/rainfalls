@@ -216,3 +216,11 @@ div[id^="interval"] .mosaic-window-body {
   display: inline-block;
   margin: 10px;
 }
+
+.outlier-scatter-select {
+  width: 200px;
+  margin: 0 5px;
+  padding: 10px;
+  position: relative;
+  right: 0;
+}
