@@ -6,6 +6,7 @@ from urllib.parse import parse_qs as parse_querystring
 import pandas as pd
 from constants import DATASET_PATH, ONE_HOUR_IN_SECONDS
 from fastapi import FastAPI, Query, Request, Response
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
@@ -15,6 +16,7 @@ from utils import cache_key_with_query_params
 
 log = logging.getLogger(__name__)
 app = FastAPI(title="Gummistiefel B")
+app.add_middleware(GZipMiddleware)
 
 db_client = DataFrameDBClient()
 

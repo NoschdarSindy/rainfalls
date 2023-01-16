@@ -1,8 +1,8 @@
-import { selector } from "recoil";
+import { selector, selectorFamily } from "recoil";
 import { filtersAtom } from "./atoms";
 import _ from "../util";
 import dayjs from "dayjs";
-
+import { DefaultApi as Api } from "../client";
 export const filtersToQueryParamsState = selector({
   key: "filtersToQueryParamsState",
   get: ({ get }) => {
@@ -21,4 +21,17 @@ export const filtersToQueryParamsState = selector({
 
     return new URLSearchParams(paramsObj).toString();
   },
+});
+
+export const filteredEventsState = selectorFamily({
+  key: "filteredEvents",
+  get:
+    ({ filterParams, fields }) =>
+    async () =>
+      (
+        await Api.queryQueryGet({
+          filterParams: filterParams,
+          fields: fields,
+        }).catch((err) => console.log(err))
+      ).results,
 });

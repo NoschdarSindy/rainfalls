@@ -181,30 +181,6 @@ div[id$="-listbox"] {
   pointer-events: none;
 }
 
-/* IntervalViews */
-.interval-mosaic .mosaic-window-toolbar {
-  display: none !important;
-}
-.interval-mosaic .mosaic-tile {
-  margin: 0 !important;
-}
-.interval-mosaic .mosaic-root {
-  inset: 0;
-}
-.interval-mosaic .mosaic-root .mosaic-tile div .mosaic-window {
-  border-radius: 0 !important;
-}
-div[id^="interval"] .mosaic-window-body {
-  padding: 0;
-}
-.interval-mosaic .mosaic-split.-column,
-.interval-mosaic .mosaic-split.-column:hover {
-  background-color: var(--mosaic-color) !important;
-}
-.leaflet-bottom.leaflet-right {
-  display: none;
-}
-
 /* Global Scatter */
 .global-scatter-parent {
   display: flex;
@@ -223,4 +199,112 @@ div[id^="interval"] .mosaic-window-body {
   padding: 10px;
   position: relative;
   right: 0;
+}
+
+/* IntervalViews */
+.interval-mosaic .mosaic-window-toolbar {
+  display: none !important;
+}
+.interval-mosaic .mosaic-tile {
+  margin: 0 !important;
+}
+.interval-mosaic .mosaic-root {
+  inset: 0;
+}
+.interval-mosaic .mosaic-root .mosaic-tile div .mosaic-window {
+  border-radius: 0 !important;
+}
+div[id^="interval"] .mosaic-window-body {
+  padding: 0;
+}
+
+.interval-mosaic .container {
+  height: 25vh !important;
+  max-width: 900px !important;
+  overflow: auto;
+}
+
+.interval-mosaic hr {
+  margin: 0;
+  height: 3px;
+  border: none;
+  background-color: var(--mosaic-color);
+  opacity: 1;
+}
+
+/*Table column visibility chips*/
+.vis-chips-container {
+  background-image: linear-gradient(to right, white, white),
+    linear-gradient(to right, white, white),
+    linear-gradient(to right, rgba(0, 0, 20, 0.4), rgba(255, 255, 255, 0)),
+    linear-gradient(to left, rgba(0, 0, 20, 0.4), rgba(255, 255, 255, 0));
+  background-position: left center, right center, left center, right center;
+  background-repeat: no-repeat;
+  background-color: white;
+  background-size: 20px 100%, 20px 100%, 10px 100%, 10px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+.interval-mosaic .MuiChip-outlined {
+  font-weight: bold !important;
+}
+
+/*Table*/
+.interval-mosaic table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.interval-mosaic thead {
+  background: #bbb;
+  margin: 0;
+  position: sticky;
+  top: 0;
+}
+
+.interval-mosaic th {
+  position: relative;
+  font-weight: bold;
+  text-align: center;
+}
+.interval-mosaic th,
+.interval-mosaic td {
+  box-shadow: 0 0 0 1px lightgray;
+  white-space: nowrap;
+}
+.interval-mosaic td {
+  border: 1px solid gray;
+  overflow-x: clip;
+  padding: 0.25rem;
+}
+
+.interval-mosaic tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.03);
+}
+.interval-mosaic tbody tr:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/*Table column resizer*/
+.resizer {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  background: black;
+  opacity: 0;
+  z-index: 999999999;
+}
+.resizer:hover,
+.resizer.isResizing {
+  opacity: 1;
+}
+
+.leaflet-bottom.leaflet-right {
+  display: none;
 }
