@@ -12,7 +12,7 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
 from models import DataFrameDBClient
-from utils import cache_key_with_query_params
+from utils import cache_key_with_query_params, datetime_to_posix_timestamp_seconds, calc_days_in_interval, round_to_min_digits
 
 log = logging.getLogger(__name__)
 app = FastAPI(title="Gummistiefel B")
@@ -89,7 +89,7 @@ async def query(
 
 
 @app.get("/overview")
-#@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
+@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
 async def overview(
     request: Request,
     response: Response,
@@ -150,3 +150,75 @@ async def overview(
         outlier[field] = all_data.loc[all_data[field] > outlier_q[field]].to_dict("records")
 
     return { "stat": stat_values, "outliers": outlier }
+
+
+@app.get("/spider")
+@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
+async def spider(
+    request: Request,
+    response: Response,
+    intervalA: str,
+    intervalB: str,
+    filter_params: Optional[str] = "",
+    limit: Optional[int] = None,
+):
+    intervalA = intervalA.split("--")
+    intervalB = intervalB.split("--")
+
+    if (len(intervalA) != 2 or len(intervalB) != 2):
+        response.status_code = 400
+        return {"error": f"Invalid query. Make sure to insert two intervals with start and end timestamp."}
+    
+    query_string = filter_params or str(request.query_params)
+    query_params = parse_querystring(query_string)
+
+    query_params.pop("intervalA", None)
+    query_params.pop("intervalB", None)
+    query_params.pop("limit", None)
+    query_params.pop("fields", None)
+
+    filters = [key.split("__") + value for key, value in query_params.items()]
+
+    try:
+        count, data = db_client.query_events(
+            filters=filters,
+            limit=999999,
+            fields=["start_time", "area", "length", "severity_index"],
+        )
+    except Exception as exc:
+        log.error(str(exc))
+        response.status_code = 400
+        return {"error": f"Invalid query. Check the console for details.\n{str(exc)}"}
+
+    data = pd.DataFrame(data)
+
+    intervalAData = data[data["start_time"] >= datetime_to_posix_timestamp_seconds(intervalA[0])]
+    intervalAData = intervalAData[intervalAData["start_time"] < datetime_to_posix_timestamp_seconds(intervalA[1])]
+
+    intervalBData = data[data["start_time"] >= datetime_to_posix_timestamp_seconds(intervalB[0])]
+    intervalBData = intervalBData[intervalBData["start_time"] < datetime_to_posix_timestamp_seconds(intervalB[1])]
+
+    intervalAData = intervalAData.mean(numeric_only=True).round(5)
+    intervalBData = intervalBData.mean(numeric_only=True).round(5)
+    
+    intervalAData["events_per_day"] = round(len(intervalAData.index) / calc_days_in_interval(intervalA), 5)
+    intervalBData["events_per_day"] = round(len(intervalBData.index) / calc_days_in_interval(intervalB), 5)
+
+    totalMax = {}
+    intervalASeries = []
+    intervalBSeries = []
+
+    for field in ["severity_index", "length", "area", "events_per_day"]:
+        valueA = round_to_min_digits(intervalAData[field])
+        valueB = round_to_min_digits(intervalBData[field])
+        totalMax[field] = max(valueA, valueB)
+        intervalASeries.append(valueA),
+        intervalBSeries.append(valueB)
+    
+    return {
+        "max": totalMax,
+        "series": {
+            "intervalA": intervalASeries,
+            "intervalB": intervalBSeries
+        }        
+    }

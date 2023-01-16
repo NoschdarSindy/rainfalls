@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import Request, Response
 from fastapi_cache import FastAPICache
+from math import log10
 
 
 def cache_key_with_query_params(
@@ -28,3 +29,20 @@ def datetime_to_posix_timestamp_seconds(dt):
     # datetime.timestamp returns seconds since epoch as float, with ms after the period
     # e.g. 1640995200.123456, so we need to cast to int to get rid of the milliseconds
     return int(dt.timestamp())
+
+
+def calc_days_in_interval(interval):
+    if (len(interval) != 2):
+        return 0
+        
+    if isinstance(interval[0], str):
+        interval[0] = datetime.fromisoformat(interval[0])
+
+    if isinstance(interval[1], str):
+        interval[1] = datetime.fromisoformat(interval[1])
+    
+    return (interval[1] - interval[0]).days
+
+def round_to_min_digits(n, min = 1):
+    k = 1 - int(log10(n))
+    return round(n, min if k < min else k)
