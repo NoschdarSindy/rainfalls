@@ -105,27 +105,16 @@ export default function Condition(props) {
         className={"form-control"}
         min={constraints.min}
         max={constraints.max}
-        pattern="\d+([.]\d*)?(e[+-]?\d+)?" // allow numbers, including floating point numbers
+        pattern="\d+([.,]\d*)?(e[+-]?\d+)?" // allow numbers, including floating point numbers
+        step={constraints.step}
         required
         onChange={handleValueChange}
-        onFocus={(e) => {
-          e.stopPropagation();
-          e.target.step = Number.MIN_VALUE;
-          e.target.select();
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          e.target.step = constraints.step;
-        }}
         key={`${field}.${conditionIndex}.input`}
       />
     );
   }
 
   const handleValueChange = (e) => {
-    e.stopPropagation();
-    e.target.step = Number.MIN_VALUE;
-
     setFilters(() =>
       update(filters, {
         [field]: {

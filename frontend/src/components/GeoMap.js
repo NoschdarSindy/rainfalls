@@ -26,7 +26,7 @@ export default function GeoMap(props) {
         if (!isCluster)
           return `<small>
 <b>Hour ${properties.hour}</b>
-<small>(${dayjs.unix(properties.date).format("DD.MM.YYYY HH:mm")})</small><br>
+<small>(${dayjs(properties.date).format("DD.MM.YYYY HH:mm")})</small><br>
 Position:
 [${properties.latitude.toFixed(2)},
 ${properties.longitude.toFixed(2)}]<br>
@@ -61,10 +61,10 @@ SI: ${properties.si}<br>
     event.timeseries.forEach((subEvent, index) => {
       // Create data points
       state.data.points.push({
-        hour: subEvent.sequence_id,
+        hour: index,
         latitude: subEvent.latitude,
         longitude: subEvent.longitude,
-        index: subEvent.event_id,
+        index: subEvent.index,
         area: subEvent.area,
         date: subEvent.date,
         si: subEvent.severity_index,
