@@ -86,49 +86,65 @@ async def query(
     return {"count": count, "results": data}
 
 
-@app.get("/overview/{field}/{start}/{end}/{bins}")
-@app.get("/overview/{field}/{start}/{end}/")
-@app.get("/overview/{field}/{bins}")
-@app.get("/overview/{field}/")
-@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
+@app.get("/overview")
+#@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
 async def overview(
-    field: str, start: str = "1970-01-01", end: str = "2018-01-01", bins: int = 20
+    request: Request,
+    response: Response,
+    bins: Optional[int] = 20,
+    filter_params: Optional[str] = "",
+    fields: Optional[List[str]] = Query(None),
+    limit: Optional[int] = None,
 ):
+    query_string = filter_params or str(request.query_params)
+    query_params = parse_querystring(query_string)
+
+    query_params.pop("limit", None)
+    query_params.pop("fields", None)
+
+    fields = fields or ["start", "area", "length", "severity_index"]
+    fields = [i for i in fields if i in ["area", "length", "severity_index"]]
+    fields.append("start")
+
+    filters = [key.split("__") + value for key, value in query_params.items()]
+
     try:
         count, data = db_client.query_events(
-            filters=[
-                ["start_time", "gte", start],
-                ["start_time", "lt", end],
-                ["severity_index", "gt", 0],
-            ],
-            limit=999999,
-            fields=["start", field],
+            filters=filters,
+            limit=limit,
+            fields=fields,
         )
     except Exception as exc:
         log.error(str(exc))
-        return Response(
-            f"Overview over field '{field}' from {start} to {end} with {str(bins)} intervals not possible. Check the console for details.\n{str(exc)}",
-            status_code=400,
-        )
+        response.status_code = 400
+        return {"error": f"Invalid query. Check the console for details.\n{str(exc)}"}
 
+    fields.remove("start")
+    bins = bins if bins < len(data) else len(data)
     limit = count // bins
-    stat_values = []
+    stat_values = {}
+    for field in fields: 
+        stat_values[field] = []
 
     for i in range(bins):
-        stat_data = data[i * limit : (i + 1) * limit]
+        stat_data = data[i * limit : (i + 1) * limit + 1]
         stat_df = pd.DataFrame(stat_data)
-        stat_df["start_time"] = stat_data[0]["start"]
-        stat_values.append(
-            {
-                "mean": stat_df.mean(numeric_only=True)[field],
-                "quantile": stat_df.quantile(0.99, numeric_only=True)[field],
-                "start_time": stat_data[0]["start"],
-            }
-        )
+        stat_mean = stat_df.mean(numeric_only=True)
+        stat_q = stat_df.quantile(0.99, numeric_only=True)
+        for field in fields: 
+            stat_values[field].append(
+                {
+                    "mean": stat_mean[field],
+                    "quantile": stat_q[field],
+                    "start_time": stat_data[0]["start"],
+                }
+            )
 
     all_data = pd.DataFrame(data)
-    outlier_q = all_data.quantile(0.999)
-    outlier_df = all_data.loc[all_data[field] > outlier_q[field]]
-    outlier_df = outlier_df.rename({field: "value"}, axis="columns")
+    outlier_q = all_data.quantile(0.999, numeric_only=True)
 
-    return {"stat": stat_values, "outliers": outlier_df.to_dict("records")}
+    outlier = {}
+    for field in fields: 
+        outlier[field] = all_data.loc[all_data[field] > outlier_q[field]].to_dict("records")
+
+    return { "stat": stat_values, "outliers": outlier }
