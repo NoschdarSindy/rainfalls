@@ -66,6 +66,8 @@ export default function OutlierScatter() {
         ]}
         layout={{
           title: `Development of '${state.selected.replace("_"," ")}'`,
+          width: 600,
+          height: 400
         }}
         config={{
           displaylogo: false,
@@ -79,7 +81,7 @@ export default function OutlierScatter() {
     return useMemo(
       () => (
         <Async promiseFn={fetchData}>
-          <Async.Pending>Creating Plot...</Async.Pending>
+          <Async.Pending><span className="plot-pending-message">Creating Plot...</span></Async.Pending>
           <Async.Fulfilled>{(response) => makePlot(response)}</Async.Fulfilled>
         </Async>
       ),
@@ -88,7 +90,7 @@ export default function OutlierScatter() {
   }
 
   return(
-    <div className="global-scatter-child outlier-scatter">
+    <div className="plot-view-child outlier-scatter">
       <ReactSelect
         className={"outlier-scatter-select"}
         options={enabledItems}

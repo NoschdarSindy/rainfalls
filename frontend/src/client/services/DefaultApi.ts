@@ -111,4 +111,35 @@ export class DefaultApi {
         });
     }
 
+    /**
+     * Spider
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static spiderSpiderGet({
+        intervalA,
+        intervalB,
+        filterParams = '',
+        limit,
+    }: {
+        intervalA: string,
+        intervalB: string,
+        filterParams?: string,
+        limit?: number,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/spider',
+            query: {
+                'intervalA': intervalA,
+                'intervalB': intervalB,
+                'filter_params': filterParams,
+                'limit': limit,
+            },
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
 }

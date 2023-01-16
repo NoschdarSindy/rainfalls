@@ -101,9 +101,9 @@ div[id$="-listbox"] {
 .mosaic-default-control::before {
   font-family: FontAwesome;
   font-weight: bold;
-  /* position: relative; */
-  bottom: 4.5px;
-  right: 1.5px;
+  position: relative;
+  bottom: 4px;
+  right: 0.45px;
 }
 .close-button::before {
   content: "\00d7";
@@ -232,7 +232,35 @@ div[id^="interval"] .mosaic-window-body {
   opacity: 1;
 }
 
-/*Table column visibility chips*/
+/* Comparison View */
+.plot-view-parent {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.plot-view-child {
+  display: inline-block;
+  margin: 10px;
+  background-color: white;
+  min-width: 600px;
+}
+
+.plot-pending-message {
+  display: inline-block;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.outlier-scatter-select {
+  width: 200px;
+  padding: 10px 0 0 10px;
+  position: relative;
+  right: 0;
+}
+
 .vis-chips-container {
   background-image: linear-gradient(to right, white, white),
     linear-gradient(to right, white, white),
