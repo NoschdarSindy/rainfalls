@@ -1,4 +1,4 @@
-:root {
+/≥:root {
   --mosaic-color: #abb3bf;
   --mui-blue: #2885ff;
 }
@@ -314,5 +314,29 @@ div[id^="interval"] .mosaic-window-body {
 }
 
 .leaflet-bottom.leaflet-right {
+  display: none;
+}
+
+/* Global Scatter */
+.global-scatter-parent {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.global-scatter-child {
+  display: inline-block;
+  margin: 10px;
+}
+
+.outlier-scatter-select {
+  width: 200px;
+  margin: 0 5px;
+  padding: 10px;
+  position: relative;
+  right: 0;
+}
+
+.hidden {
   display: none;
 }

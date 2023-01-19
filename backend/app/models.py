@@ -37,6 +37,7 @@ class DataFrameDBClient:
             "severity_index",
             "start_time",
         ),
+        return_df=False,
     ):
         self._check_query_filters(filters)  # raises ValueError on invalid filters
 
@@ -77,8 +78,9 @@ class DataFrameDBClient:
 
         # apply fields filter so we only return relevant result fields
         filtered_df = filtered_df[[*fields]]
+        return_value = filtered_df if return_df else filtered_df.to_dict("records")
 
-        return count_before_limit, filtered_df.to_dict("records")
+        return count_before_limit, return_value
 
     @staticmethod
     def _check_query_filters(filters):

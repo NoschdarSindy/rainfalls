@@ -19,27 +19,12 @@ export const filtersAtom = atom({
   default:
     // Example
     {
-      [_.LENGTH]: {
-        label: "Length",
-        conditions: [
-          {
-            operator: "lt",
-            value: 123,
-            enabled: true,
-          },
-          {
-            operator: "neq",
-            value: 1,
-            enabled: false,
-          },
-        ],
-      },
-      [_.AREA]: {
-        label: "Area",
+      [_.SEV_INDEX]: {
+        label: "Severity index",
         conditions: [
           {
             operator: "gt",
-            value: 2,
+            value: 0,
             enabled: true,
           },
         ],
@@ -83,4 +68,22 @@ export const intervalViewAtoms = atomFamily({
         },
       },
     ][id],
+});
+
+export const timelineDateRangeAtom = atom({
+  key: "timelineDateRange",
+  default: {
+    start: undefined,
+    end: undefined,
+  },
+});
+
+export const histogramVisibleAtom = atom({
+  key: "histogramVisible",
+  default: true,
+});
+
+export const timelineVisibleAtom = atom({
+  key: "timelineVisible",
+  default: false,
 });

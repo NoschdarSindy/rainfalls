@@ -1,9 +1,9 @@
 from datetime import datetime
+from math import log10
 from typing import Optional
 
 from fastapi import Request, Response
 from fastapi_cache import FastAPICache
-from math import log10
 
 
 def cache_key_with_query_params(
@@ -32,17 +32,22 @@ def datetime_to_posix_timestamp_seconds(dt):
 
 
 def calc_days_in_interval(interval):
-    if (len(interval) != 2):
+    if len(interval) != 2:
         return 0
-        
+
     if isinstance(interval[0], str):
         interval[0] = datetime.fromisoformat(interval[0])
 
     if isinstance(interval[1], str):
         interval[1] = datetime.fromisoformat(interval[1])
-    
+
     return (interval[1] - interval[0]).days
 
-def round_to_min_digits(n, min = 1):
+
+def round_to_min_digits(n, min=1):
     k = 1 - int(log10(n))
     return round(n, min if k < min else k)
+
+
+def extract_filters(query_params):
+    return [key.split("__") + value for key, value in query_params.items()]
