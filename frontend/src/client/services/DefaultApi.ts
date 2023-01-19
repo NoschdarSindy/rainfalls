@@ -88,13 +88,9 @@ export class DefaultApi {
     public static overviewOverviewGet({
         bins = 20,
         filterParams = '',
-        fields,
-        limit,
     }: {
         bins?: number,
         filterParams?: string,
-        fields?: Array<string>,
-        limit?: number,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -102,8 +98,6 @@ export class DefaultApi {
             query: {
                 'bins': bins,
                 'filter_params': filterParams,
-                'fields': fields,
-                'limit': limit,
             },
             errors: {
                 422: `Validation Error`,
@@ -120,12 +114,10 @@ export class DefaultApi {
         intervalA,
         intervalB,
         filterParams = '',
-        limit,
     }: {
         intervalA: string,
         intervalB: string,
         filterParams?: string,
-        limit?: number,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
@@ -134,7 +126,28 @@ export class DefaultApi {
                 'intervalA': intervalA,
                 'intervalB': intervalB,
                 'filter_params': filterParams,
-                'limit': limit,
+            },
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
+     * Overview Histogram
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static overviewHistogramOverviewHistogramGet({
+        filterParams = '',
+    }: {
+        filterParams?: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/overview-histogram',
+            query: {
+                'filter_params': filterParams,
             },
             errors: {
                 422: `Validation Error`,
