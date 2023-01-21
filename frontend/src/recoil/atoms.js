@@ -73,6 +73,10 @@ export const intervalViewAtoms = atomFamily({
           eventId: 0,
           bounds: {},
         },
+        interval: {
+          startDate: null,
+          endDate: null
+        }
       },
 
       // Rechter IntervalView state
@@ -81,6 +85,10 @@ export const intervalViewAtoms = atomFamily({
           eventId: 34,
           bounds: {},
         },
+        interval: {
+          startDate: null,
+          endDate: null
+        }
       },
     ][id],
 });

@@ -312,7 +312,17 @@ div[id^="interval"] .mosaic-window-body {
 .resizer.isResizing {
   opacity: 1;
 }
+.table-chip {
+  margin: 5px !important;
+}
 
 .leaflet-bottom.leaflet-right {
   display: none;
+}
+
+.interval-picker-button {
+  margin: 5px 10px;
+}
+.interval-picker-modal {
+  width: fit-content !important;
 }

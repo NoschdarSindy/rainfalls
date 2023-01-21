@@ -143,6 +143,7 @@ export default function Table() {
               return (
                 <span key={column.id}>
                   <Chip
+                    className={"table-chip"}
                     label={
                       <span>
                         {column.columnDef.header}{" "}
