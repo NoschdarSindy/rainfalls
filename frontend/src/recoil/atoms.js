@@ -48,6 +48,12 @@ export const intervalRangeAtom = atom({
   },
 });
 
+// Track the min and max timestamp of the current interval defined in GlobalTimeline
+export const intervalComparisonCandidateListAtom = atom({
+  key: "intervalComparisonCandidateList",
+  default: [],
+});
+
 export const intervalViewAtoms = atomFamily({
   key: "intervalView",
   default: (id) =>
@@ -68,22 +74,4 @@ export const intervalViewAtoms = atomFamily({
         },
       },
     ][id],
-});
-
-export const timelineDateRangeAtom = atom({
-  key: "timelineDateRange",
-  default: {
-    start: undefined,
-    end: undefined,
-  },
-});
-
-export const histogramVisibleAtom = atom({
-  key: "histogramVisible",
-  default: true,
-});
-
-export const timelineVisibleAtom = atom({
-  key: "timelineVisible",
-  default: false,
 });
