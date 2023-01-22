@@ -313,8 +313,46 @@ div[id^="interval"] .mosaic-window-body {
   opacity: 1;
 }
 
-.leaflet-bottom.leaflet-right {
+/* Leaflet maps */
+.flow-map {
+  opacity: 0;
+  visibility: hidden;
+}
+.fadable {
+  transition: visibility 0.3s, opacity 1s;
+}
+.overview-map
+  .leaflet-pane.leaflet-overlay-pane
+  > svg
+  > g
+  > g
+  > g[class$="g-point"]
+  path {
+  cursor: pointer !important;
+}
+
+/* Map controls */
+.leaflet-control-container > div > * {
+  margin: 0 !important;
+}
+.leaflet-control-attribution {
   display: none;
+}
+.leaflet-control-container .map-back-button {
+  border-top: none;
+  border-left: none;
+  border-bottom-right-radius: 5px !important;
+}
+.legend {
+  padding: 5px !important;
+  font: 14px/16px Arial, Helvetica, sans-serif !important;
+  background: #f8f9faaa !important;
+  border-top-left-radius: 5px !important;
+  width: 85px !important;
+}
+.legend .legendCircle {
+  border-radius: 50% !important;
+  border: 1px solid black;
 }
 
 /* Global Scatter */

@@ -26,12 +26,22 @@ export const filtersToQueryParamsState = selector({
 export const filteredEventsState = selectorFamily({
   key: "filteredEvents",
   get:
-    ({ filterParams, fields }) =>
+    ({ filterParams }) =>
     async () =>
       (
         await Api.queryQueryGet({
           filterParams: filterParams,
-          fields: fields,
+          fields: [
+            "event_id",
+            "area",
+            "severity_index",
+            "start_time",
+            "length",
+            "meanLat",
+            "meanLon",
+            "meanPrec",
+            "maxPrec",
+          ],
         }).catch((err) => console.log(err))
       ).results,
 });

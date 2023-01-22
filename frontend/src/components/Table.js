@@ -23,7 +23,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
 
-export default function Table() {
+export default function Table({ filteredEvents }) {
   const filtersToQueryParams = useRecoilValue(filtersToQueryParamsState);
   const filters = useRecoilValue(filtersAtom);
   const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
@@ -81,22 +81,6 @@ export default function Table() {
     []
   );
 
-  const loadFilteredEventsIntoTable = useRecoilCallback(
-    ({ snapshot }) => {
-      if (!filterModalVisible)
-        return async () => {
-          const events = await snapshot.getPromise(
-            filteredEventsState({
-              filterParams: filtersToQueryParams,
-              fields: columns.map((col) => col.accessorKey),
-            })
-          );
-          setData(events);
-        };
-    },
-    [filters, filterModalVisible]
-  );
-
   const table = useReactTable({
     data,
     columns,
@@ -127,7 +111,7 @@ export default function Table() {
     if (!filterModalVisible)
       (async () => {
         setLoading(true);
-        await loadFilteredEventsIntoTable();
+        setData(filteredEvents);
         setLoading(false);
       })();
   }, [filters, filterModalVisible]);
