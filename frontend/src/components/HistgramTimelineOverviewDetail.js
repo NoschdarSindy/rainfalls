@@ -205,9 +205,6 @@ export default function ButtonToggleHistogramTimeline() {
     histOptions.drilldown.series = drilldownData;
   }
 
-  // Store current interval min and max timestamp in state
-  // const setIntervalRange = useSetRecoilState(intervalRangeAtom);
-
   const timelineOptions = useMemo(
     () => ({
       rangeSelector: {
@@ -290,7 +287,8 @@ export default function ButtonToggleHistogramTimeline() {
     }
   }
 
-  function afterChartCreationCallback() {
+  function afterChartCreationCallback(chart) {
+    setIntervalRange({ min: chart.xAxis[0].min, max: chart.xAxis[0].max });
     updateTimelineRange();
   }
 
