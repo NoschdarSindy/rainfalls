@@ -8,7 +8,6 @@ import {
 } from "../recoil/selectors";
 import Async from "react-async";
 import Table from "./Table";
-import IntervalSelection from "./IntervalSelection";
 
 function IntervalView(props) {
   const filters = useRecoilValue(filtersAtom);
@@ -68,7 +67,7 @@ function IntervalView(props) {
 
   return (
     <div className={"interval-mosaic"}>
-      <IntervalSelection intervalViewId={props.id} />
+      Ich bin ein IntervalView
       <hr />
       {tableAndMap}
     </div>

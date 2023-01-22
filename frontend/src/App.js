@@ -1,7 +1,5 @@
 import { Mosaic, MosaicWindow } from "react-mosaic-component";
 import "react-mosaic-component/react-mosaic-component.css";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
 import Header from "./components/Header";
 import ComparisonView from "./components/ComparisonView";
 import IntervalView from "./components/IntervalView";

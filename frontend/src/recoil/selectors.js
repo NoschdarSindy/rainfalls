@@ -3,7 +3,6 @@ import { filtersAtom } from "./atoms";
 import _ from "../util";
 import dayjs from "dayjs";
 import { DefaultApi as Api } from "../client";
-
 export const filtersToQueryParamsState = selector({
   key: "filtersToQueryParamsState",
   get: ({ get }) => {
