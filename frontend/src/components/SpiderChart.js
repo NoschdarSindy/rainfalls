@@ -8,7 +8,7 @@ import { DefaultApi as Api } from "../client";
 
 export default function SpiderChart(props) {
   const filters = useRecoilValue(filtersToQueryParamsState);
-  const dateOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
+  const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
 
   const startDateA = new Date(props.startA).toLocaleDateString("de-DE", dateOptions);
   const endDateA = new Date(props.endA).toLocaleDateString("de-DE", dateOptions);
@@ -43,7 +43,7 @@ export default function SpiderChart(props) {
         },
         tooltip: {
           show: true,
-          trigger: "item",
+          trigger: 'item',
           valueFormatter: function(x) {
             return x
           }

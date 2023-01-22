@@ -312,9 +312,6 @@ div[id^="interval"] .mosaic-window-body {
 .resizer.isResizing {
   opacity: 1;
 }
-.table-chip {
-  margin: 5px !important;
-}
 
 /* Leaflet maps */
 .flow-map {
@@ -380,11 +377,4 @@ div[id^="interval"] .mosaic-window-body {
 
 .hidden {
   display: none;
-}
-
-.interval-picker-button {
-  margin: 5px 10px;
-}
-.interval-picker-modal {
-  width: fit-content !important;
 }

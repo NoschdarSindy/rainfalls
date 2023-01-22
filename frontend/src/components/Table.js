@@ -127,7 +127,6 @@ export default function Table({ filteredEvents }) {
               return (
                 <span key={column.id}>
                   <Chip
-                    className={"table-chip"}
                     label={
                       <span>
                         {column.columnDef.header}{" "}
