@@ -6,7 +6,6 @@ import { de } from "react-date-range/dist/locale";
 import { Chip } from "@mui/material";
 import { intervalAtoms } from "../recoil/atoms";
 
-
 export default function IntervalSelection(props) {
   const [interval, setInterval] = useRecoilState(
     intervalAtoms(props.intervalViewId)
@@ -21,38 +20,43 @@ export default function IntervalSelection(props) {
   const onChange = (item) => {
     setInterval({
       startDate: item.range1.startDate,
-      endDate: item.range1.endDate
+      endDate: item.range1.endDate,
     });
-  }
+  };
 
   const renderChip = () => {
     if (interval.startDate && interval.endDate) {
-      return (<Chip
-        label={getChipLabel()}
-        onDelete={deleteChip}
-        variant="outlined"
-        className={"chip text-end"}
-      />);
+      return (
+        <Chip
+          label={getChipLabel()}
+          onDelete={deleteChip}
+          variant="outlined"
+          className={"chip text-end"}
+        />
+      );
     }
 
     return;
-  }
+  };
 
   const getChipLabel = () => {
     if (interval.startDate && interval.endDate) {
       const dateOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
-      return `${interval.startDate.toLocaleDateString("de-DE", dateOptions)} to ${interval.endDate.toLocaleDateString("de-DE", dateOptions)}`;
+      return `${interval.startDate.toLocaleDateString(
+        "de-DE",
+        dateOptions
+      )} to ${interval.endDate.toLocaleDateString("de-DE", dateOptions)}`;
     }
 
     return null;
-  }
+  };
 
   const deleteChip = () => {
     setInterval({
       startDate: null,
-      endDate: null
+      endDate: null,
     });
-  }
+  };
 
   return (
     <>
@@ -61,7 +65,7 @@ export default function IntervalSelection(props) {
         variant="primary btn-sm"
         className={"interval-picker-button"}
       >
-        Select Interval
+        Adjust Interval
       </Button>
 
       <Modal
@@ -70,14 +74,16 @@ export default function IntervalSelection(props) {
         dialogClassName="interval-picker-modal"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Select Interval</Modal.Title>
+          <Modal.Title>Adjust Interval</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <DateRange
-            ranges={[{
-              startDate: interval.startDate || minDate,
-              endDate: interval.endDate || maxDate,
-            }]}
+            ranges={[
+              {
+                startDate: interval.startDate || minDate,
+                endDate: interval.endDate || maxDate,
+              },
+            ]}
             onChange={onChange}
             locale={de}
             dateDisplayFormat={"dd.MM.yyyy"}
@@ -88,10 +94,11 @@ export default function IntervalSelection(props) {
             months={2}
             editableDateInputs={true}
           />
-          
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>Close</Button>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
         </Modal.Footer>
       </Modal>
 

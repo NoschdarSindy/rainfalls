@@ -6,8 +6,7 @@ import Header from "./components/Header";
 import ComparisonView from "./components/ComparisonView";
 import IntervalView from "./components/IntervalView";
 import WindowManager from "./components/WindowManager";
-import ButtonToggleHistogramTimeline from "./components/HistgramTimelineOverviewDetail";
-import SelectTimeIntervalButton from "./components/selectedTimeIntervalButton";
+import HistogramAndTimeline from "./components/HistgramTimelineOverviewDetail";
 
 const VIEWS = {
   comparison: <ComparisonView title="Comparison" />,
@@ -18,8 +17,7 @@ const VIEWS = {
 const App = () => (
   <>
     <Header />
-    <SelectTimeIntervalButton />
-    <ButtonToggleHistogramTimeline />
+    <HistogramAndTimeline />
     <Mosaic
       renderTile={(id, path) => (
         <div id={`${id}-mosaic`}>

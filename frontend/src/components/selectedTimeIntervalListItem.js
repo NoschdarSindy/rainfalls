@@ -5,18 +5,20 @@ import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
 import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip from "@mui/material/Tooltip";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import { useRecoilState } from "recoil";
-import { intervalAtoms, intervalComparisonCandidateListAtom } from "../recoil/atoms";
-import { IntervalViewSelector } from "./IntervalSelection";
-
-
+import {
+  intervalAtoms,
+  intervalComparisonCandidateListAtom,
+} from "../recoil/atoms";
 
 export default function SelectedTimeIntervalListItem(props) {
-  const [intervalList, setIntervalList] = useRecoilState(intervalComparisonCandidateListAtom);
+  const [intervalList, setIntervalList] = useRecoilState(
+    intervalComparisonCandidateListAtom
+  );
   const [intervalA, setIntervalA] = useRecoilState(intervalAtoms(0));
   const [intervalB, setIntervalB] = useRecoilState(intervalAtoms(1));
 
@@ -43,8 +45,8 @@ export default function SelectedTimeIntervalListItem(props) {
 
     setInterval({
       startDate: new Date(intervalList[index].min),
-      endDate: new Date(intervalList[index].max)
-    })
+      endDate: new Date(intervalList[index].max),
+    });
     handleCloseModal();
     return true;
   }
@@ -83,14 +85,12 @@ export default function SelectedTimeIntervalListItem(props) {
           </IconButton>
         }
       >
-        <Tooltip 
+        <Tooltip
           title="Add to Interval View"
           onClick={() => handleInsert(props.intervalIndex)}
         >
           <ListItemAvatar>
-            <Avatar>
-              <DateRangeIcon />
-            </Avatar>
+            <DateRangeIcon color="primary" />
           </ListItemAvatar>
         </Tooltip>
         <ListItemText primary={label} secondary={props.intervalIndex} />
@@ -105,22 +105,38 @@ export default function SelectedTimeIntervalListItem(props) {
           <Modal.Title>Select an Interval View</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div>The currently choosen interval in the selected view will be replaced.</div>
+          <div>
+            The currently choosen interval in the selected view will be
+            replaced.
+          </div>
           <div className="select-interval-view">
-            <Button 
-              variant="primary" 
-              onClick={() => addToInterval(props.intervalIndex, intervalA, setIntervalA, true)}
+            <Button
+              variant="primary"
+              onClick={() =>
+                addToInterval(
+                  props.intervalIndex,
+                  intervalA,
+                  setIntervalA,
+                  true
+                )
+              }
             >
               Interval A
             </Button>
-            <Button 
-              variant="primary" 
-              onClick={() => addToInterval(props.intervalIndex, intervalB, setIntervalB, true)}
+            <Button
+              variant="primary"
+              onClick={() =>
+                addToInterval(
+                  props.intervalIndex,
+                  intervalB,
+                  setIntervalB,
+                  true
+                )
+              }
             >
               Interval B
             </Button>
           </div>
-          
         </Modal.Body>
       </Modal>
     </>
