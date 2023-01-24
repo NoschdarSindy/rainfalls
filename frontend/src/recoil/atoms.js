@@ -54,24 +54,20 @@ export const intervalComparisonCandidateListAtom = atom({
   default: [],
 });
 
-export const intervalViewAtoms = atomFamily({
-  key: "intervalView",
+export const intervalAtoms = atomFamily({
+  key: "interval",
   default: (id) =>
     [
       // Linker IntervalView state
       {
-        mapState: {
-          eventId: 0,
-          bounds: {},
-        },
+        startDate: null,
+        endDate: null
       },
 
       // Rechter IntervalView state
       {
-        mapState: {
-          eventId: 34,
-          bounds: {},
-        },
+        startDate: null,
+        endDate: null
       },
     ][id],
 });
