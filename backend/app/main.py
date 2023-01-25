@@ -220,7 +220,7 @@ async def spider(
     intervalASeries = []
     intervalBSeries = []
 
-    for field in ["severity_index", "length", "area", "events_per_day"]:
+    for field in ["severity_index", "length", "events_per_day", "area"]:
         valueA = round_to_min_digits(intervalAData[field])
         valueB = round_to_min_digits(intervalBData[field])
         totalMax[field] = max(valueA, valueB)
