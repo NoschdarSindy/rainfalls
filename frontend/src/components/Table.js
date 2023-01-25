@@ -7,13 +7,8 @@ import {
 import { useVirtual } from "@tanstack/react-virtual";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chip } from "@mui/material";
-import { DefaultApi as Api } from "../client";
-import { useRecoilCallback, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { filterModalVisibleAtom, filtersAtom } from "../recoil/atoms";
-import {
-  filteredEventsState,
-  filtersToQueryParamsState,
-} from "../recoil/selectors";
 import {
   faEye,
   faEyeSlash,
@@ -23,8 +18,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dayjs from "dayjs";
 
-export default function Table({ filteredEvents }) {
-  const filtersToQueryParams = useRecoilValue(filtersToQueryParamsState);
+export default function Table({ filteredEvents, rowClickCallback }) {
   const filters = useRecoilValue(filtersAtom);
   const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
   const [loading, setLoading] = useState(true);
@@ -214,7 +208,13 @@ export default function Table({ filteredEvents }) {
                 {virtualRows.map((virtualRow) => {
                   const row = rows[virtualRow.index];
                   return (
-                    <tr key={row.id}>
+                    <tr
+                      key={row.id}
+                      onClick={() => {
+                        if (window.getSelection().isCollapsed)
+                          rowClickCallback(row.original.event_id);
+                      }}
+                    >
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <td key={cell.id}>

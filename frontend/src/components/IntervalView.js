@@ -1,7 +1,11 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useRef } from "react";
 import GeoMap from "./GeoMap";
 import { useRecoilCallback, useRecoilValue } from "recoil";
-import { filterModalVisibleAtom, filtersAtom, intervalAtoms } from "../recoil/atoms";
+import {
+  filterModalVisibleAtom,
+  filtersAtom,
+  intervalAtoms,
+} from "../recoil/atoms";
 import {
   filteredEventsState,
   filtersToQueryParamsState,
@@ -14,9 +18,8 @@ function IntervalView(props) {
   const filters = useRecoilValue(filtersAtom);
   const filtersToQueryParams = useRecoilValue(filtersToQueryParamsState);
   const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
-  const interval = useRecoilValue(
-    intervalAtoms(props.id)
-  );
+  const interval = useRecoilValue(intervalAtoms(props.id));
+  const mapComponentRef = useRef();
 
   const loadFilteredEvents = useRecoilCallback(
     ({ snapshot }) => {
@@ -28,11 +31,15 @@ function IntervalView(props) {
         );
 
         if (interval.startDate) {
-          data = data.filter(entry => entry.start_time >= interval.startDate.getTime() / 1000);
+          data = data.filter(
+            (entry) => entry.start_time >= interval.startDate.getTime() / 1000
+          );
         }
 
         if (interval.endDate) {
-          data = data.filter(entry => entry.start_time <= interval.endDate.getTime() / 1000);
+          data = data.filter(
+            (entry) => entry.start_time <= interval.endDate.getTime() / 1000
+          );
         }
 
         return data;
@@ -44,6 +51,10 @@ function IntervalView(props) {
   const loadData = useCallback(async () => {
     return await loadFilteredEvents();
   }, [filters, filterModalVisible, interval]);
+
+  const rowClickCallback = (eventId) => {
+    mapComponentRef.current?.overviewToDetail(eventId);
+  };
 
   const tableAndMap = useMemo(() => {
     if (!filterModalVisible)
@@ -60,9 +71,11 @@ function IntervalView(props) {
                 <Table
                   intervalViewId={props.id}
                   filteredEvents={filteredEvents}
+                  rowClickCallback={rowClickCallback}
                 />
                 <hr />
                 <GeoMap
+                  ref={mapComponentRef}
                   intervalViewId={props.id}
                   filteredEvents={filteredEvents}
                 />

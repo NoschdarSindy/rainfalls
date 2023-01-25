@@ -24,7 +24,7 @@ export const filtersAtom = atom({
         conditions: [
           {
             operator: "gt",
-            value: 0,
+            value: 0.1,
             enabled: true,
           },
         ],
@@ -61,13 +61,13 @@ export const intervalAtoms = atomFamily({
       // Linker IntervalView state
       {
         startDate: null,
-        endDate: null
+        endDate: null,
       },
 
       // Rechter IntervalView state
       {
         startDate: null,
-        endDate: null
+        endDate: null,
       },
     ][id],
 });
