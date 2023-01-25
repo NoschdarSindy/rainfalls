@@ -229,7 +229,6 @@ div[id^="interval"] .mosaic-window-body {
 
 .interval-mosaic .container {
   height: 25vh !important;
-  max-width: 900px !important;
   overflow: auto;
 }
 
@@ -292,6 +291,9 @@ div[id^="interval"] .mosaic-window-body {
 }
 .interval-mosaic tbody tr:hover {
   background: rgba(0, 0, 0, 0.06);
+}
+.interval-mosaic tbody tr {
+  cursor: pointer;
 }
 
 /*Table column resizer*/
