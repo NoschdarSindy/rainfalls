@@ -12,7 +12,6 @@ export default class ComparisonView extends View {
           <SelectTimeIntervalButton />
           <SelectedTimeIntervalList />
           <SpiderChart />
-          <OutlierScatter />
         </div>
       </div>
     );

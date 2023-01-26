@@ -1,5 +1,4 @@
-import { memo, useCallback, useMemo, useRef } from "react";
-import GeoMap from "./GeoMap";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
   filterModalVisibleAtom,
@@ -11,8 +10,11 @@ import {
   filtersToQueryParamsState,
 } from "../recoil/selectors";
 import Async from "react-async";
-import Table from "./Table";
+import Collapse from "react-bootstrap/Collapse";
+import GeoMap from "./GeoMap";
 import IntervalSelection from "./IntervalSelection";
+import OutlierScatter from "./OutlierScatter";
+import Table from "./Table";
 
 function IntervalView(props) {
   const filters = useRecoilValue(filtersAtom);
@@ -20,6 +22,12 @@ function IntervalView(props) {
   const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
   const interval = useRecoilValue(intervalAtoms(props.id));
   const mapComponentRef = useRef();
+
+  const [showScatter, setShowScatter] = useState(false);
+
+  function handleToggleScatter() {
+    setShowScatter(!showScatter);
+  }
 
   const loadFilteredEvents = useRecoilCallback(
     ({ snapshot }) => {
@@ -68,11 +76,20 @@ function IntervalView(props) {
           <Async.Fulfilled>
             {(filteredEvents) => (
               <>
-                <Table
-                  intervalViewId={props.id}
-                  filteredEvents={filteredEvents}
-                  rowClickCallback={rowClickCallback}
-                />
+                <Collapse in={showScatter}>
+                  <div id="scatterplot">
+                    <OutlierScatter interval={interval} />
+                  </div>
+                </Collapse>
+                <Collapse in={!showScatter}>
+                  <div id="scatterplot">
+                    <Table
+                      intervalViewId={props.id}
+                      filteredEvents={filteredEvents}
+                      rowClickCallback={rowClickCallback}
+                    />
+                  </div>
+                </Collapse>
                 <hr />
                 <GeoMap
                   ref={mapComponentRef}
@@ -90,11 +107,15 @@ function IntervalView(props) {
           </Async.Rejected>
         </Async>
       );
-  }, [filters, filterModalVisible, interval]);
+  }, [filters, filterModalVisible, interval, showScatter]);
 
   return (
     <div className={"interval-mosaic"}>
-      <IntervalSelection intervalViewId={props.id} />
+      <IntervalSelection
+        intervalViewId={props.id}
+        showScatter={showScatter}
+        toggleScatterFunc={handleToggleScatter}
+      />
       <hr />
       {tableAndMap}
     </div>

@@ -111,12 +111,12 @@ export class DefaultApi {
      * @throws ApiError
      */
     public static spiderSpiderGet({
-        start,
-        end,
+        start = '',
+        end = '',
         filterParams = '',
     }: {
-        start: string,
-        end: string,
+        start?: string,
+        end?: string,
         filterParams?: string,
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
