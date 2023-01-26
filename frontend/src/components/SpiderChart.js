@@ -105,7 +105,7 @@ export default function SpiderChart() {
         className={"spider-chart"}
         style={{
           height: "450px",
-          width: "600px",
+          width: "100%",
           background: "white",
         }}
         option={{
