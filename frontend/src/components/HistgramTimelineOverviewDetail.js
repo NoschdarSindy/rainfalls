@@ -13,7 +13,9 @@ import Highstock from "highcharts/highstock";
 import Exporting from "highcharts/modules/exporting";
 import drilldown from "highcharts/modules/drilldown";
 import HighchartsReact from "highcharts-react-official";
-import ToggleTimelineButton from "./toggleTimelineButton";
+import Button from "react-bootstrap/Button";
+import Collapse from "react-bootstrap/Collapse";
+
 Exporting(Highcharts);
 drilldown(Highcharts);
 
@@ -26,6 +28,8 @@ export default function ButtonToggleHistogramTimeline() {
   const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
 
   const setIntervalRange = useSetRecoilState(intervalRangeAtom);
+
+  const [showTimeline, setShowTimeline] = useState(false);
 
   let range = {};
 
@@ -302,42 +306,58 @@ export default function ButtonToggleHistogramTimeline() {
 
   const timelineChart = useRef(null);
 
-  return useMemo(() => {
-    if (!filterModalVisible)
-      return (
+  return (
+    <>
+      {useMemo(() => {
+        if (!filterModalVisible)
+          return (
+            <div>
+              <Async promiseFn={histFetchDataAndMakePlot}>
+                <Async.Pending>Creating Plot...</Async.Pending>
+                <Async.Fulfilled>
+                  {() => (
+                    <div id="histogram-chart">
+                      <HighchartsReact
+                        highcharts={Highcharts}
+                        options={histOptions}
+                        constructorType={"chart"}
+                      />
+                    </div>
+                  )}
+                </Async.Fulfilled>
+              </Async>
+            </div>
+          );
+      }, [filters, filterModalVisible])}
+
+      <Button onClick={() => setShowTimeline(!showTimeline)}>
+        {showTimeline ? "Hide" : "Show"} Timeline
+      </Button>
+      <Collapse in={showTimeline}>
         <div>
-          <div id="histogram-chart">
-            <Async promiseFn={histFetchDataAndMakePlot}>
-              <Async.Pending>Creating Plot...</Async.Pending>
-              <Async.Fulfilled>
-                {() => (
-                  <HighchartsReact
-                    highcharts={Highcharts}
-                    options={histOptions}
-                    constructorType={"chart"}
-                  />
-                )}
-              </Async.Fulfilled>
-            </Async>
-          </div>
-          <ToggleTimelineButton />
-          <div id="timeline-chart" style={{ display: "none" }}>
-            <Async promiseFn={timelineFetchDataAndMakePlot}>
-              <Async.Pending>Creating Plot...</Async.Pending>
-              <Async.Fulfilled>
-                {() => (
-                  <HighchartsReact
-                    highcharts={Highstock}
-                    ref={timelineChart}
-                    options={timelineOptions}
-                    constructorType={"stockChart"}
-                    callback={afterChartCreationCallback}
-                  />
-                )}
-              </Async.Fulfilled>
-            </Async>
-          </div>
+          {useMemo(() => {
+            if (!filterModalVisible)
+              return (
+                <Async promiseFn={timelineFetchDataAndMakePlot}>
+                  <Async.Pending>Creating Plot...</Async.Pending>
+                  <Async.Fulfilled>
+                    {() => (
+                      <>
+                        <HighchartsReact
+                          highcharts={Highstock}
+                          ref={timelineChart}
+                          options={timelineOptions}
+                          constructorType={"stockChart"}
+                          callback={afterChartCreationCallback}
+                        />
+                      </>
+                    )}
+                  </Async.Fulfilled>
+                </Async>
+              );
+          }, [filters, filterModalVisible])}
         </div>
-      );
-  }, [filters, filterModalVisible]);
+      </Collapse>
+    </>
+  );
 }
