@@ -1,5 +1,5 @@
-import datetime as dt
 import logging
+from datetime import datetime
 from typing import List, Optional
 from urllib.parse import parse_qs as parse_querystring
 
@@ -156,26 +156,13 @@ async def overview(
 async def spider(
     request: Request,
     response: Response,
-    intervalA: str,
-    intervalB: str,
+    start: Optional[str] = "",
+    end: Optional[str] = "",
     filter_params: Optional[str] = "",
 ):
-    intervalA = intervalA.split("--")
-    intervalB = intervalB.split("--")
-
-    if len(intervalA) != 2 or len(intervalB) != 2:
-        response.status_code = 400
-        return {
-            "error": f"Invalid query. Make sure to insert two intervals with start and end timestamp."
-        }
 
     query_string = filter_params or str(request.query_params)
     query_params = parse_querystring(query_string)
-
-    query_params.pop("intervalA", None)
-    query_params.pop("intervalB", None)
-    query_params.pop("limit", None)
-    query_params.pop("fields", None)
 
     filters = [key.split("__") + value for key, value in query_params.items()]
 
@@ -190,47 +177,19 @@ async def spider(
         response.status_code = 400
         return {"error": f"Invalid query. Check the console for details.\n{str(exc)}"}
 
-    data = pd.DataFrame(data)
+    df = pd.DataFrame(data)
 
-    intervalAData = data[
-        data["start_time"] >= datetime_to_posix_timestamp_seconds(intervalA[0])
-    ]
-    intervalAData = intervalAData[
-        intervalAData["start_time"] < datetime_to_posix_timestamp_seconds(intervalA[1])
-    ]
+    start = start or datetime.fromtimestamp(df.iloc[0]["start_time"])
+    end = end or datetime.fromtimestamp(df.iloc[-1]["start_time"])
 
-    intervalBData = data[
-        data["start_time"] >= datetime_to_posix_timestamp_seconds(intervalB[0])
-    ]
-    intervalBData = intervalBData[
-        intervalBData["start_time"] < datetime_to_posix_timestamp_seconds(intervalB[1])
-    ]
+    df = df[df["start_time"] >= datetime_to_posix_timestamp_seconds(start)]
+    df = df[df["start_time"] < datetime_to_posix_timestamp_seconds(end)]
+    df = df.drop(columns=["start_time"])
+    df = df.mean(numeric_only=True).round(5)
+    df["events_per_day"] = round(len(df.index) / calc_days_in_interval([start, end]), 5)
+    df = df.apply(round_to_min_digits)
 
-    intervalAData = intervalAData.mean(numeric_only=True).round(5)
-    intervalBData = intervalBData.mean(numeric_only=True).round(5)
-
-    intervalAData["events_per_day"] = round(
-        len(intervalAData.index) / calc_days_in_interval(intervalA), 5
-    )
-    intervalBData["events_per_day"] = round(
-        len(intervalBData.index) / calc_days_in_interval(intervalB), 5
-    )
-
-    totalMax = {}
-    intervalASeries = []
-    intervalBSeries = []
-
-    for field in ["severity_index", "length", "events_per_day", "area"]:
-        valueA = round_to_min_digits(intervalAData[field])
-        valueB = round_to_min_digits(intervalBData[field])
-        totalMax[field] = max(valueA, valueB)
-        intervalASeries.append(valueA),
-        intervalBSeries.append(valueB)
-
-    return {
-        "max": totalMax,
-        "series": {"intervalA": intervalASeries, "intervalB": intervalBSeries},
-    }
+    return df.to_dict()
 
 
 @app.get("/overview-histogram")

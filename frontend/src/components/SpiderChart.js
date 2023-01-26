@@ -1,56 +1,116 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Async from "react-async";
 import ReactECharts from "echarts-for-react";
 import { useRecoilValue } from "recoil";
 import { filtersToQueryParamsState } from "../recoil/selectors";
-import { filterModalVisibleAtom } from "../recoil/atoms";
+import { filterModalVisibleAtom, intervalAtoms } from "../recoil/atoms";
 import { DefaultApi as Api } from "../client";
 
-export default function SpiderChart(props) {
+export default function SpiderChart() {
   const filters = useRecoilValue(filtersToQueryParamsState);
   const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
-  const dateOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
+  const intervalA = useRecoilValue(intervalAtoms(0));
+  const intervalB = useRecoilValue(intervalAtoms(1));
 
-  const startDateA = new Date(props.startA).toLocaleDateString(
-    "de-DE",
-    dateOptions
-  );
-  const endDateA = new Date(props.endA).toLocaleDateString(
-    "de-DE",
-    dateOptions
-  );
-  const startDateB = new Date(props.startB).toLocaleDateString(
-    "de-DE",
-    dateOptions
-  );
-  const endDateB = new Date(props.endB).toLocaleDateString(
-    "de-DE",
-    dateOptions
-  );
+  const fetchData = async () => {
+    let data = [];
 
-  const intervalA = `${startDateA} to ${endDateA}`;
-  const intervalB = `${startDateB} to ${endDateB}`;
-
-  const fetchData = () => {
-    return Api.spiderSpiderGet({
-      intervalA: `${props.startA}--${props.endA}`,
-      intervalB: `${props.startB}--${props.endB}`,
+    let globalReferenceRange = await Api.spiderSpiderGet({
+      start: null,
+      end: null,
+      filterParams: filters,
     });
+
+    data.push({
+      ...globalReferenceRange,
+      name: "Global Reference",
+      color: "orange",
+    });
+
+    if (intervalA && intervalA.startDate && intervalA.endDate) {
+      data.push({
+        ...(await Api.spiderSpiderGet({
+          start: intervalA.startDate.toISOString(),
+          end: intervalA.endDate.toISOString(),
+          filterParams: filters,
+        })),
+        name: "Interval A",
+        color: "blue",
+      });
+    }
+
+    if (intervalB && intervalB.startDate && intervalB.endDate) {
+      data.push({
+        ...(await Api.spiderSpiderGet({
+          start: intervalB.startDate.toISOString(),
+          end: intervalB.endDate.toISOString(),
+          filterParams: filters,
+        })),
+        name: "Interval B",
+        color: "green",
+      });
+    }
+
+    return data;
   };
 
   const makePlot = (data) => {
-    console.log(data);
+    let names = [];
+    let chartData = [];
+    let maxValues = {
+      severity_index: 0,
+      length: 0,
+      area: 0,
+      events_per_day: 0,
+    };
+
+    for (let i = 0; i < data.length; i++) {
+      names.push(data[i].name);
+
+      maxValues.severity_index = Math.max(
+        maxValues.severity_index,
+        data[i].severity_index
+      );
+
+      maxValues["length"] = Math.max(maxValues["length"], data[i]["length"]);
+      maxValues.area = Math.max(maxValues.area, data[i].area);
+      maxValues.events_per_day = Math.max(
+        maxValues.events_per_day,
+        data[i].events_per_day
+      );
+
+      chartData.push({
+        value: [
+          data[i].severity_index,
+          data[i]["length"],
+          data[i].events_per_day,
+          data[i].area,
+        ],
+        name: data[i].name,
+        itemStyle: {
+          color: data[i].color,
+        },
+        label: {
+          show: true,
+          color: data[i].color,
+          formatter: function (x) {
+            return x.value;
+          },
+        },
+      });
+    }
+
     return (
       <ReactECharts
         className={"spider-chart"}
         style={{
           height: "450px",
-          width: "100%",
+          width: "600px",
           background: "white",
         }}
         option={{
           legend: {
-            data: [intervalA, intervalB],
+            data: names,
             orient: "vertical",
             top: "top",
             left: "left",
@@ -58,6 +118,9 @@ export default function SpiderChart(props) {
           tooltip: {
             show: true,
             trigger: "item",
+            valueFormatter: function (x) {
+              return x;
+            },
           },
           radar: {
             shape: "circle",
@@ -73,46 +136,17 @@ export default function SpiderChart(props) {
               },
             },
             indicator: [
-              { name: "Severity Index", max: data.max.severity_index },
-              { name: "Length", max: data.max.length },
-              { name: "Events per day", max: data.max.events_per_day },
-              { name: "Area", max: data.max.area },
+              { name: "Severity Index", max: maxValues.severity_index },
+              { name: "Length", max: maxValues["length"] },
+              { name: "Events per Day", max: maxValues.events_per_day },
+              { name: "Area", max: maxValues.area },
             ],
           },
           series: [
             {
               name: "Interval Comparison",
               type: "radar",
-              data: [
-                {
-                  value: data.series.intervalA,
-                  name: intervalA,
-                  itemStyle: {
-                    color: "blue",
-                  },
-                  label: {
-                    show: true,
-                    color: "blue",
-                    formatter: function (x) {
-                      return x.value;
-                    },
-                  },
-                },
-                {
-                  value: data.series.intervalB,
-                  name: intervalB,
-                  itemStyle: {
-                    color: "green",
-                  },
-                  label: {
-                    show: true,
-                    color: "green",
-                    formatter: function (x) {
-                      return x.value;
-                    },
-                  },
-                },
-              ],
+              data: chartData,
             },
           ],
         }}
@@ -133,7 +167,7 @@ export default function SpiderChart(props) {
             </Async.Fulfilled>
           </Async>
         );
-    }, [filters, filterModalVisible]);
+    }, [filters, filterModalVisible, intervalA, intervalB]);
   };
 
   return <div className="plot-view-child">{fetchDataAndMakePlot()}</div>;
