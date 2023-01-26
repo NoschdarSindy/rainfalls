@@ -68,6 +68,17 @@ export default function IntervalSelection(props) {
         Adjust Interval
       </Button>
 
+      <Button
+        onClick={props.toggleScatterFunc}
+        variant="primary btn-sm"
+        aria-controls="scatterplot"
+        aria-expanded={props.showScatter}
+      >
+        Toggle Scatterplot {props.showScatter ? "off" : "on"}
+      </Button>
+
+      {props.button}
+
       <Modal
         show={show}
         onHide={handleClose}

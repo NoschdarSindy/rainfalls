@@ -7,36 +7,57 @@ import { filtersToQueryParamsState } from "../recoil/selectors";
 import { filterModalVisibleAtom } from "../recoil/atoms";
 import { DefaultApi as Api } from "../client";
 
-
-export default function OutlierScatter() {
+export default function OutlierScatter(props) {
   const filters = useRecoilValue(filtersToQueryParamsState);
 
   const items = [
-    { 
-      value: "area", label: "Area", 
-      disabled: filters.includes("field=") && !filters.includes("field=area") 
+    {
+      value: "area",
+      label: "Area",
+      disabled: filters.includes("field=") && !filters.includes("field=area"),
     },
-    { 
-      value: "length", label: "Length", 
-      disabled: filters.includes("field=") && !filters.includes("field=length") 
+    {
+      value: "length",
+      label: "Length",
+      disabled: filters.includes("field=") && !filters.includes("field=length"),
     },
-    { 
-      value: "severity_index", label: "Severity Index", 
-      disabled: filters.includes("field=") && !filters.includes("field=severity_index") 
-    }
-  ]
+    {
+      value: "severity_index",
+      label: "Severity Index",
+      disabled:
+        filters.includes("field=") && !filters.includes("field=severity_index"),
+    },
+  ];
 
-  const enabledItems = items.filter(obj => {
-    return !obj.disabled
+  const enabledItems = items.filter((obj) => {
+    return !obj.disabled;
   });
 
   const [state, setState] = useState({
-    selected: enabledItems[0].value
+    selected: enabledItems[0].value,
   });
 
-  const fetchData = () => {
-    return Api.overviewOverviewGet({ filterParams: filters });
-  }
+  const fetchData = async () => {
+    console.log(filters);
+    console.log(props.interval);
+
+    if (props.interval && props.interval.startDate && props.interval.endDate) {
+      let filterParamsWithIntervalRange = filters;
+      let startTimestamp = props.interval.startDate.toISOString();
+      let endTimestamp = props.interval.endDate.toISOString();
+
+      filterParamsWithIntervalRange += `&start_time__gte=${startTimestamp}`;
+      filterParamsWithIntervalRange += `&start_time__lte=${endTimestamp}`;
+
+      console.log(filterParamsWithIntervalRange);
+
+      return await Api.overviewOverviewGet({
+        filterParams: filterParamsWithIntervalRange,
+      });
+    } else {
+      return await Api.overviewOverviewGet({ filterParams: filters });
+    }
+  };
 
   const makePlot = (data) => {
     return (
@@ -65,39 +86,41 @@ export default function OutlierScatter() {
           },
         ]}
         layout={{
-          title: `Development of '${state.selected.replace("_"," ")}'`,
+          title: `Development of '${state.selected.replace("_", " ")}'`,
           width: 600,
-          height: 400
+          height: 400,
         }}
         config={{
           displaylogo: false,
-          responsive: true
+          responsive: true,
         }}
       />
-    )
-  }
+    );
+  };
 
   const fetchDataAndMakePlot = () => {
     return useMemo(
       () => (
         <Async promiseFn={fetchData}>
-          <Async.Pending><span className="plot-pending-message">Creating Plot...</span></Async.Pending>
+          <Async.Pending>
+            <span className="plot-pending-message">Creating Plot...</span>
+          </Async.Pending>
           <Async.Fulfilled>{(response) => makePlot(response)}</Async.Fulfilled>
         </Async>
       ),
       [state, filters, useRecoilValue(filterModalVisibleAtom)]
     );
-  }
+  };
 
-  return(
+  return (
     <div className="plot-view-child outlier-scatter">
       <ReactSelect
         className={"outlier-scatter-select"}
         options={enabledItems}
         onChange={(selected) => {
           setState({
-            selected: selected.value
-          })
+            selected: selected.value,
+          });
         }}
         value={enabledItems.find((obj) => obj.value === state.selected)}
         components={{
