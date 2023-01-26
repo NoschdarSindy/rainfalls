@@ -22,9 +22,15 @@ def cache_key_with_query_params(
     return cache_key
 
 
+def remove_tz(datestring):
+    if datestring[-1].lower() == "z":
+        datestring = datestring[:-1]
+    return datestring
+
+
 def datetime_to_posix_timestamp_seconds(dt):
     if isinstance(dt, str):
-        dt = datetime.fromisoformat(dt)
+        dt = datetime.fromisoformat(remove_tz(dt))
 
     # datetime.timestamp returns seconds since epoch as float, with ms after the period
     # e.g. 1640995200.123456, so we need to cast to int to get rid of the milliseconds
@@ -36,10 +42,10 @@ def calc_days_in_interval(interval):
         return 0
 
     if isinstance(interval[0], str):
-        interval[0] = datetime.fromisoformat(interval[0])
+        interval[0] = datetime.fromisoformat(remove_tz(interval[0]))
 
     if isinstance(interval[1], str):
-        interval[1] = datetime.fromisoformat(interval[1])
+        interval[1] = datetime.fromisoformat(remove_tz(interval[1]))
 
     return (interval[1] - interval[0]).days
 

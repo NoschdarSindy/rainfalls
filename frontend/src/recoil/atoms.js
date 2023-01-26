@@ -71,3 +71,8 @@ export const intervalAtoms = atomFamily({
       },
     ][id],
 });
+
+export const globalReferenceRangeAtom = atom({
+  key: "globalReferenceRange",
+  default: { startDate: null, endDate: null },
+});

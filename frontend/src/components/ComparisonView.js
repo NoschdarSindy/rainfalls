@@ -11,12 +11,7 @@ export default class ComparisonView extends View {
         <div className="plot-view-parent">
           <SelectTimeIntervalButton />
           <SelectedTimeIntervalList />
-          <SpiderChart
-            startA="1999-12-01"
-            endA="2000-03-01"
-            startB="2000-03-01"
-            endB="2000-06-01"
-          />
+          <SpiderChart />
           <OutlierScatter />
         </div>
       </div>
