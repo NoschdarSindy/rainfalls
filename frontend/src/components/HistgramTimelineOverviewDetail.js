@@ -330,7 +330,10 @@ export default function ButtonToggleHistogramTimeline() {
           );
       }, [filters, filterModalVisible])}
 
-      <Button onClick={() => setShowTimeline(!showTimeline)}>
+      <Button
+        className={"timeline-button"}
+        onClick={() => setShowTimeline(!showTimeline)}
+      >
         {showTimeline ? "Hide" : "Show"} Timeline
       </Button>
       <Collapse in={showTimeline}>

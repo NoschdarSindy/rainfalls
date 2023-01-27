@@ -1,4 +1,6 @@
 import { memo, useCallback, useMemo, useRef, useState } from "react";
+import Async from "react-async";
+import Collapse from "react-bootstrap/Collapse";
 import { useRecoilCallback, useRecoilValue } from "recoil";
 import {
   filterModalVisibleAtom,
@@ -9,8 +11,6 @@ import {
   filteredEventsState,
   filtersToQueryParamsState,
 } from "../recoil/selectors";
-import Async from "react-async";
-import Collapse from "react-bootstrap/Collapse";
 import GeoMap from "./GeoMap";
 import IntervalSelection from "./IntervalSelection";
 import OutlierScatter from "./OutlierScatter";
@@ -22,7 +22,6 @@ function IntervalView(props) {
   const filterModalVisible = useRecoilValue(filterModalVisibleAtom);
   const interval = useRecoilValue(intervalAtoms(props.id));
   const mapComponentRef = useRef();
-
   const [showScatter, setShowScatter] = useState(false);
 
   function handleToggleScatter() {
@@ -78,7 +77,10 @@ function IntervalView(props) {
               <>
                 <Collapse in={showScatter}>
                   <div id="scatterplot">
-                    <OutlierScatter interval={interval} />
+                    <OutlierScatter
+                      interval={interval}
+                      filteredEvents={filteredEvents}
+                    />
                   </div>
                 </Collapse>
                 <Collapse in={!showScatter}>

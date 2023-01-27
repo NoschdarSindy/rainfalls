@@ -1,6 +1,6 @@
 {
-  "APP_PATH": "/home/max/projects/hu-berlin/visual-analytics/visual-analytics-gitlab/backend/app",
-  "DATASET_PATH": "/home/max/projects/hu-berlin/visual-analytics/visual-analytics-gitlab/backend/app/../../dataset.df.pickle",
+  "APP_PATH": "/home/main/Desktop/Workspace/Studies/HU/Visual Analytics/backend/app",
+  "DATASET_PATH": "/home/main/Desktop/Workspace/Studies/HU/Visual Analytics/backend/app/../../dataset.df.pickle",
   "ONE_HOUR_IN_SECONDS": 3600,
   "AREA": "area",
   "LENGTH": "length",
