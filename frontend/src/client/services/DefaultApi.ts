@@ -81,31 +81,6 @@ export class DefaultApi {
     }
 
     /**
-     * Overview
-     * @returns any Successful Response
-     * @throws ApiError
-     */
-    public static overviewOverviewGet({
-        bins = 20,
-        filterParams = '',
-    }: {
-        bins?: number,
-        filterParams?: string,
-    }): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/overview',
-            query: {
-                'bins': bins,
-                'filter_params': filterParams,
-            },
-            errors: {
-                422: `Validation Error`,
-            },
-        });
-    }
-
-    /**
      * Spider
      * @returns any Successful Response
      * @throws ApiError

@@ -94,63 +94,6 @@ async def query(
     return {"count": count, "results": data}
 
 
-@app.get("/overview")
-@cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
-async def overview(
-    request: Request,
-    response: Response,
-    bins: Optional[int] = 20,
-    filter_params: Optional[str] = "",
-):
-    query_string = filter_params or str(request.query_params)
-    query_params = parse_querystring(query_string)
-
-    fields = ["start", "area", "length", "severity_index"]
-    filters = extract_filters(query_params)
-
-    try:
-        count, data_df = db_client.query_events(
-            filters=filters,
-            limit=None,
-            fields=fields,
-            return_df=True,
-        )
-    except Exception as exc:
-        log.error(str(exc))
-        response.status_code = 400
-        return {"error": f"Invalid query. Check the console for details.\n{str(exc)}"}
-
-    fields.remove("start")
-    stat_values = {field: [] for field in fields}
-
-    bins = bins if bins is not None and bins < count else count
-    limit = count // bins
-
-    for i in range(bins):
-        stat_df = data_df.iloc[i * limit : (i + 1) * limit + 1]
-        stat_mean = stat_df.mean(numeric_only=True)
-        stat_q = stat_df.quantile(0.99, numeric_only=True)
-        for field in fields:
-            stat_values[field].append(
-                {
-                    "mean": stat_mean[field],
-                    "quantile": stat_q[field],
-                    "start_time": stat_df.iloc[0]["start"],
-                }
-            )
-
-    all_data = data_df.copy()
-    outlier_q = all_data.quantile(0.999, numeric_only=True)
-
-    outlier = {}
-    for field in fields:
-        outlier[field] = all_data.loc[all_data[field] > outlier_q[field]].to_dict(
-            "records"
-        )
-
-    return {"stat": stat_values, "outliers": outlier}
-
-
 @app.get("/spider")
 @cache(expire=ONE_HOUR_IN_SECONDS, key_builder=cache_key_with_query_params)
 async def spider(
@@ -187,6 +130,7 @@ async def spider(
     df = df.drop(columns=["start_time"])
     df = df.mean(numeric_only=True).round(5)
     df["events_per_day"] = round(len(df.index) / calc_days_in_interval([start, end]), 5)
+    print(df)
     df = df.apply(round_to_min_digits)
 
     return df.to_dict()

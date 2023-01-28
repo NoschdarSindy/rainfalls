@@ -1,5 +1,5 @@
 from datetime import datetime
-from math import log10
+from math import log10, isnan
 from typing import Optional
 
 from fastapi import Request, Response
@@ -38,19 +38,22 @@ def datetime_to_posix_timestamp_seconds(dt):
 
 
 def calc_days_in_interval(interval):
-    if len(interval) != 2:
-        return 0
+    if len(interval) < 2:
+        return 1
 
     if isinstance(interval[0], str):
         interval[0] = datetime.fromisoformat(remove_tz(interval[0]))
 
     if isinstance(interval[1], str):
         interval[1] = datetime.fromisoformat(remove_tz(interval[1]))
-
-    return (interval[1] - interval[0]).days
+    
+    days = (interval[1] - interval[0]).days
+    return days if days > 0 else 1
 
 
 def round_to_min_digits(n, min=1):
+    if (isnan(n)):
+        return 0
     k = 1 - int(log10(n))
     return round(n, min if k < min else k)
 
