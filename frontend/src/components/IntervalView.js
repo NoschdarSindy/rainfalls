@@ -78,8 +78,8 @@ function IntervalView(props) {
                 <Collapse in={showScatter}>
                   <div id="scatterplot">
                     <OutlierScatter
-                      interval={interval}
                       filteredEvents={filteredEvents}
+                      rowClickCallback={rowClickCallback}
                     />
                   </div>
                 </Collapse>
