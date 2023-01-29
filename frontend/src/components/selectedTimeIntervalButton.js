@@ -21,7 +21,7 @@ export default function SelectTimeIntervalButton() {
   }
 
   return (
-    <Button onClick={handleClick}>
+    <Button onClick={handleClick} variant="primary">
       Save selected Time-Interval for Comparison
     </Button>
   );

@@ -17,6 +17,8 @@ export default function SelectedTimeIntervalList() {
         key={index}
         intervalIndex={index}
         intervalRange={element}
+        active={!!element.activeIntervalName}
+        activeIntervalName={element.activeIntervalName}
       />
     );
   });

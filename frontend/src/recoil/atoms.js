@@ -45,6 +45,7 @@ export const intervalRangeAtom = atom({
   default: {
     min: 0,
     max: 0,
+    activeIntervalName: undefined,
   },
 });
 
