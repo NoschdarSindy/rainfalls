@@ -6,9 +6,8 @@ import { useRecoilValue } from "recoil";
 import { filtersToQueryParamsState } from "../recoil/selectors";
 import * as Helper from "../helper/ArrayMath";
 
-export default function OutlierScatter(props) {
+export default function OutlierScatter({ filteredEvents, rowClickCallback }) {
   const filters = useRecoilValue(filtersToQueryParamsState);
-  const events = props.filteredEvents;
   const maxBins = 40;
   const minBinEntries = 5;
   const defaultQuantile = 98.0;
@@ -93,7 +92,7 @@ export default function OutlierScatter(props) {
     return result;
   };
 
-  const data = createChunks(events, maxBins, minBinEntries);
+  const data = createChunks(filteredEvents, maxBins, minBinEntries);
   const mean = getLinearData(data, Helper.mean);
 
   const makePlot = () => {
@@ -103,10 +102,17 @@ export default function OutlierScatter(props) {
     const quantile = getLinearData(data, Helper.quantile, quantileValue / 100, [
       { value: state.selected },
     ]);
-    const outlier = Helper.outlier(events, state.selected, outlierLimit / 100);
+    const outlier = Helper.outlier(
+      filteredEvents,
+      state.selected,
+      outlierLimit / 100
+    );
     const outlier_index = [];
     outlier.forEach((entry) => {
-      outlier_index.push(new Date(entry.start_time * 1000));
+      outlier_index.push({
+        index: entry.event_id,
+        date: new Date(entry.start_time * 1000),
+      });
     });
 
     return (
@@ -127,7 +133,7 @@ export default function OutlierScatter(props) {
             name: `${quantileValue}% quantile`,
           },
           {
-            x: outlier_index,
+            x: outlier_index.map((obj) => obj.date),
             y: outlier.map((obj) => obj[state.selected]),
             mode: "markers",
             type: "scatter",
@@ -142,6 +148,25 @@ export default function OutlierScatter(props) {
         config={{
           displaylogo: false,
           responsive: true,
+        }}
+        onClick={(data) => {
+          if (data.points[0].data.mode == "markers") {
+            const date = outlier_index.find(
+              (obj) =>
+                obj.date.getTime() == new Date(data.points[0].x).getTime()
+            );
+            rowClickCallback(date.index);
+          }
+        }}
+        onHover={(data) => {
+          if (data.points[0].data.mode == "markers") {
+            data.event.explicitOriginalTarget.style.cursor = "pointer";
+          }
+        }}
+        onUnhover={(data) => {
+          if (data.points[0].data.mode == "markers") {
+            data.event.explicitOriginalTarget.style.cursor = "default";
+          }
         }}
       />
     );
@@ -214,7 +239,10 @@ export default function OutlierScatter(props) {
           </div>
         </div>
       </div>
-      {useMemo(() => makePlot(), [events, state, quantileValue, outlierLimit])}
+      {useMemo(
+        () => makePlot(),
+        [filteredEvents, state, quantileValue, outlierLimit]
+      )}
     </div>
   );
 }
