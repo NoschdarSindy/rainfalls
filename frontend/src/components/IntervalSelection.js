@@ -2,9 +2,12 @@ import { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useRecoilState } from "recoil";
 import { DateRange } from "react-date-range";
-import { de } from "react-date-range/dist/locale";
+import { de, enGB } from "react-date-range/dist/locale";
 import { Chip } from "@mui/material";
-import { intervalAtoms } from "../recoil/atoms";
+import {
+  intervalAtoms,
+  intervalComparisonCandidateListAtom,
+} from "../recoil/atoms";
 
 export default function IntervalSelection(props) {
   const [interval, setInterval] = useRecoilState(
@@ -12,8 +15,13 @@ export default function IntervalSelection(props) {
   );
 
   const [show, setShow] = useState(false);
+  const [intervalList, setIntervalList] = useRecoilState(
+    intervalComparisonCandidateListAtom
+  );
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
   const minDate = new Date("1979/01/01");
   const maxDate = new Date("2017/12/31");
 
@@ -22,7 +30,60 @@ export default function IntervalSelection(props) {
       startDate: item.range1.startDate,
       endDate: item.range1.endDate,
     });
+
+    let intervalName = props.intervalViewId == 0 ? "Interval A" : "Interval B";
+    console.log(item.range1);
+    setActiveOnInterval(
+      intervalName,
+      item.range1.startDate,
+      item.range1.endDate
+    );
   };
+
+  function setActiveOnInterval(intervalName, startDate, endDate) {
+    setIntervalList((oldIntervalList) => {
+      let newList = [];
+
+      for (let i = 0; i < oldIntervalList.length; i++) {
+        let newItem = { ...oldIntervalList[i] };
+
+        if (newItem.activeIntervalName == intervalName) {
+          // The Date Picker component takes the local browser TZ offset into
+          // consideration when creating the Date objects, so we end up with
+          // GMT+1 Dates. Internally, Dates are represented as milliseconds since
+          // epoch in UTC time. In the GMT+1 to UTC convervsion, we lose 1 hour,
+          // that is the reason why I'm adding it back here
+
+          // copy dates to not mess with the date picker ui elements
+          let utcStart = new Date(startDate.getTime());
+          let utcEnd = new Date(endDate.getTime());
+
+          // since we have no control over hours and minutes in the date picker,
+          // we set some sensible defaults
+          utcStart.setHours(0);
+          utcStart.setMinutes(0);
+          utcEnd.setHours(23);
+          utcEnd.setMinutes(59);
+
+          // add 1 hour - will roll over properly to the next day if needed
+          utcStart = utcStart.setTime(startDate.getTime() + 1 * 60 * 60 * 1000);
+          utcEnd = utcEnd.setTime(utcEnd.getTime() + 1 * 60 * 60 * 1000);
+
+          newItem.min = utcStart;
+          newItem.max = utcEnd;
+
+          // create a copy of the original interval range, so we don't lose it
+          let oldItemCopy = { ...oldIntervalList[i] };
+          oldItemCopy.activeIntervalName = undefined;
+          newList.push(oldItemCopy);
+        }
+
+        newList.push(newItem);
+      }
+
+      return newList;
+    });
+  }
 
   const renderChip = () => {
     if (interval.startDate && interval.endDate) {

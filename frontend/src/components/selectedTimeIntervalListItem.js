@@ -3,7 +3,6 @@ import { Button, Modal } from "react-bootstrap";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
-import Avatar from "@mui/material/Avatar";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import DateRangeIcon from "@mui/icons-material/DateRange";
@@ -22,7 +21,14 @@ export default function SelectedTimeIntervalListItem(props) {
   const [intervalA, setIntervalA] = useRecoilState(intervalAtoms(0));
   const [intervalB, setIntervalB] = useRecoilState(intervalAtoms(1));
 
-  const localeOpts = { timeZone: "UTC" };
+  const localeOpts = {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
   const start = new Date(props.intervalRange.min).toLocaleString(
     "de-DE",
     localeOpts
@@ -35,7 +41,9 @@ export default function SelectedTimeIntervalListItem(props) {
   const label = start + " - " + end;
 
   const [showModal, setShowModal] = useState(false);
+
   const handleCloseModal = () => setShowModal(false);
+
   const handleShowModal = () => setShowModal(true);
 
   function addToInterval(index, interval, setInterval, override = false) {
@@ -55,26 +63,48 @@ export default function SelectedTimeIntervalListItem(props) {
     setIntervalList((oldIntervalList) => {
       let newList = [...oldIntervalList];
       newList.splice(index, 1);
-
       return newList;
     });
   }
 
   function handleInsert(index) {
     if (addToInterval(index, intervalA, setIntervalA)) {
+      setActiveOnInterval("Interval A");
       return;
     }
 
     if (addToInterval(index, intervalB, setIntervalB)) {
+      setActiveOnInterval("Interval B");
       return;
     }
 
     handleShowModal();
   }
 
+  function setActiveOnInterval(intervalName) {
+    setIntervalList((oldIntervalList) => {
+      let newList = [];
+
+      for (let i = 0; i < oldIntervalList.length; i++) {
+        let item = { ...oldIntervalList[i] };
+
+        if (i == props.intervalIndex) {
+          item.activeIntervalName = intervalName;
+        } else if (item.activeIntervalName == intervalName) {
+          item.activeIntervalName = undefined;
+        }
+
+        newList.push(item);
+      }
+
+      return newList;
+    });
+  }
+
   return (
     <>
       <ListItem
+        selected={props.active}
         secondaryAction={
           <IconButton
             onClick={() => handleDelete(props.intervalIndex)}
@@ -93,7 +123,7 @@ export default function SelectedTimeIntervalListItem(props) {
             <DateRangeIcon color="primary" />
           </ListItemAvatar>
         </Tooltip>
-        <ListItemText primary={label} secondary={props.intervalIndex} />
+        <ListItemText primary={label} secondary={props.activeIntervalName} />
       </ListItem>
 
       <Modal
@@ -112,27 +142,29 @@ export default function SelectedTimeIntervalListItem(props) {
           <div className="select-interval-view">
             <Button
               variant="primary"
-              onClick={() =>
+              onClick={() => {
                 addToInterval(
                   props.intervalIndex,
                   intervalA,
                   setIntervalA,
                   true
-                )
-              }
+                );
+                setActiveOnInterval("Interval A");
+              }}
             >
               Interval A
             </Button>
             <Button
               variant="primary"
-              onClick={() =>
+              onClick={() => {
                 addToInterval(
                   props.intervalIndex,
                   intervalB,
                   setIntervalB,
                   true
-                )
-              }
+                );
+                setActiveOnInterval("Interval B");
+              }}
             >
               Interval B
             </Button>
