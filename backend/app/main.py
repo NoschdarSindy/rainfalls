@@ -130,7 +130,6 @@ async def spider(
     df = df.drop(columns=["start_time"])
     df = df.mean(numeric_only=True).round(5)
     df["events_per_day"] = round(len(df.index) / calc_days_in_interval([start, end]), 5)
-    print(df)
     df = df.apply(round_to_min_digits)
 
     return df.to_dict()

@@ -30,8 +30,8 @@ export default function SpiderChart() {
     if (intervalA && intervalA.startDate && intervalA.endDate) {
       data.push({
         ...(await Api.spiderSpiderGet({
-          start: intervalA.startDate.toISOString(),
-          end: intervalA.endDate.toISOString(),
+          start: new Date(intervalA.startDate).toISOString(),
+          end: new Date(intervalA.endDate).toISOString(),
           filterParams: filters,
         })),
         name: "Interval A",
@@ -42,8 +42,8 @@ export default function SpiderChart() {
     if (intervalB && intervalB.startDate && intervalB.endDate) {
       data.push({
         ...(await Api.spiderSpiderGet({
-          start: intervalB.startDate.toISOString(),
-          end: intervalB.endDate.toISOString(),
+          start: new Date(intervalB.startDate).toISOString(),
+          end: new Date(intervalB.endDate).toISOString(),
           filterParams: filters,
         })),
         name: "Interval B",

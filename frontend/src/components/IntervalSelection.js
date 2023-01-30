@@ -26,13 +26,14 @@ export default function IntervalSelection(props) {
   const maxDate = new Date("2017/12/31");
 
   const onChange = (item) => {
+    console.log(item);
     setInterval({
       startDate: item.range1.startDate,
       endDate: item.range1.endDate,
     });
 
     let intervalName = props.intervalViewId == 0 ? "Interval A" : "Interval B";
-    console.log(item.range1);
+
     setActiveOnInterval(
       intervalName,
       item.range1.startDate,
@@ -103,10 +104,13 @@ export default function IntervalSelection(props) {
   const getChipLabel = () => {
     if (interval.startDate && interval.endDate) {
       const dateOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
-      return `${interval.startDate.toLocaleDateString(
+      return `${new Date(interval.startDate).toLocaleDateString(
         "de-DE",
         dateOptions
-      )} to ${interval.endDate.toLocaleDateString("de-DE", dateOptions)}`;
+      )} to ${new Date(interval.endDate).toLocaleDateString(
+        "de-DE",
+        dateOptions
+      )}`;
     }
 
     return null;
@@ -152,8 +156,8 @@ export default function IntervalSelection(props) {
           <DateRange
             ranges={[
               {
-                startDate: interval.startDate || minDate,
-                endDate: interval.endDate || maxDate,
+                startDate: new Date(interval.startDate) || minDate,
+                endDate: new Date(interval.endDate) || maxDate,
               },
             ]}
             onChange={onChange}

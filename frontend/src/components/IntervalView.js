@@ -39,13 +39,15 @@ function IntervalView(props) {
 
         if (interval.startDate) {
           data = data.filter(
-            (entry) => entry.start_time >= interval.startDate.getTime() / 1000
+            (entry) =>
+              entry.start_time >= new Date(interval.startDate).getTime() / 1000
           );
         }
 
         if (interval.endDate) {
           data = data.filter(
-            (entry) => entry.start_time <= interval.endDate.getTime() / 1000
+            (entry) =>
+              entry.start_time <= new Date(interval.endDate).getTime() / 1000
           );
         }
 
