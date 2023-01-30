@@ -64,7 +64,8 @@ export default function Header() {
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
-    link.download = `${new Date().toISOString().slice(0, -5)}-export.json`;
+    const dateString = new Date().toISOString().slice(0, -8).replace(":", "-");
+    link.download = `${dateString}-heavy-rainfalls-export.json`;
     link.href = url;
     link.click();
   };
