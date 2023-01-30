@@ -26,7 +26,6 @@ export default function IntervalSelection(props) {
   const maxDate = new Date("2017/12/31");
 
   const onChange = (item) => {
-    console.log(item);
     setInterval({
       startDate: item.range1.startDate,
       endDate: item.range1.endDate,
