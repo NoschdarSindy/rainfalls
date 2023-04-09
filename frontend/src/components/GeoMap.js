@@ -308,7 +308,7 @@ SI: ${properties.si}<br>
         flowMapRef.current?.component.zoomToPointById(
           0,
           true,
-          Math.max(7, ovMapZoom)
+          Math.max(7, ovMapZoom || 0)
         );
         mapRef.current?.component.zoomToPointById(id, true, ovMapZoom);
       });
