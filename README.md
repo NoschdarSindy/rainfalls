@@ -1,6 +1,6 @@
 # VA
 
-This application shows the temporal development of heavy rainfalls from a dataset. It does so using various visualisation techniques. The data can be filtered by its attributes and selected intervals can be compared (cf. the Interval A and Interval B windows). It follows the principle of "Overview First — Details on Demand". The application can be easily adapted to show the development of any kind of spatiotemporal data across time.
+This application shows the temporal development of heavy rainfalls from a dataset. It does so using various visualisation techniques. The data can be filtered by its attributes and selected intervals can be compared (cf. the Interval A and Interval B windows) and explored further. It follows the principle of "Overview First — Details on Demand". The application can be easily adapted to show the development of any kind of spatiotemporal data across time.
 
 ### Starting up the application
 
